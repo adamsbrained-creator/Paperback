@@ -22,7 +22,6 @@ export default function CollectionPage() {
   const [shelves, update, ready] = useShelves();
   const [id, setId] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
-  const [name, setName] = useState('');
   useEffect(() => setId(new URLSearchParams(window.location.search).get('id')), []);
 
   const col = useMemo(

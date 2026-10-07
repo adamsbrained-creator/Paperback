@@ -284,6 +284,25 @@ edit('apps/readest-app/src/app/reader/components/ReaderContent.tsx', {
   };`,
 });
 
+// The edit above removes the only call to navigateToLibrary, which leaves its import unused,
+// and Readest's TypeScript settings fail the build on unused imports. Drop it (only if nothing else uses it).
+{
+  const rc = path.join(root, 'apps/readest-app/src/app/reader/components/ReaderContent.tsx');
+  if (fs.existsSync(rc)) {
+    const text = fs.readFileSync(rc, 'utf8');
+    if ((text.match(/navigateToLibrary/g) || []).length === 1) {
+      const next = text
+        .replace(/^[ \t]*navigateToLibrary,\r?\n/m, '')
+        .replace(/\bnavigateToLibrary,\s*/, '')
+        .replace(/,\s*navigateToLibrary\b/, '');
+      if (next !== text) {
+        fs.writeFileSync(rc, next);
+        log('  ~ ReaderContent.tsx: removed the now-unused navigateToLibrary import');
+      }
+    }
+  }
+}
+
 // Reader footer default: show "N pages left in chapter" (the page / total readout is already on).
 edit('apps/readest-app/src/services/constants.ts', {
   what: 'footer shows pages left in the chapter by default',
