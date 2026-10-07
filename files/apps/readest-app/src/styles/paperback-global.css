@@ -1,0 +1,41 @@
+/* Paperback: small app-wide touches that the theme palette alone can't do.
+   Scoped to the library grid so the reader and dialogs are untouched. */
+
+.library-page .bookitem-main {
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+}
+.library-page .bookitem-main img,
+.library-page .bookitem-main > div {
+  border-radius: 14px;
+}
+
+/* Softer, rounder inputs and pills in the library header. */
+.library-page .search-input {
+  border-radius: 9999px;
+  font-weight: 400;
+}
+
+/* ---------- Reader footer: "23 pages left in chapter" on the left, "31 / 355" on the right ----------
+   Readest does the counting; this only gives it the Paperback look: Outfit, light weight.
+   (If you switch the progress bar on in the reader settings it gets a coral fill.) */
+.progressinfo.progressinfo {
+  font-family: var(--font-outfit), 'Outfit', system-ui, sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.01em;
+}
+.progressinfo .remaining-info,
+.progressinfo .progress-readout {
+  opacity: 0.72;
+}
+.progressinfo .sticky-progress-track {
+  height: 6px;
+  border: 0;
+  background: rgba(127, 127, 127, 0.28);
+}
+.progressinfo .sticky-progress-fill {
+  background: #f46b4e;
+}
+.progressinfo .sticky-progress-tick {
+  opacity: 0.35;
+}
