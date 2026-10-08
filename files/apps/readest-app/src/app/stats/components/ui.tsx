@@ -1,8 +1,8 @@
 'use client';
 
 import clsx from 'clsx';
-import type { Book } from '@/types/book';
-import BookCover from '@/components/BookCover';
+import type { Book } from '@/components/paperback/platform';
+import { BookCover }from '@/components/paperback/platform';
 
 export function Pills<T extends string>({
   options,

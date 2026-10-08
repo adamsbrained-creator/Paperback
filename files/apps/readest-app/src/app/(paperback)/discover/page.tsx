@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react';
 import { PiCaretRight } from 'react-icons/pi';
-import { useAppRouter } from '@/hooks/useAppRouter';
-import { useSettingsStore } from '@/store/settingsStore';
+import { useAppRouter } from '@/components/paperback/platform';
+import { useSettingsStore } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
 
 interface Catalog {

@@ -2,11 +2,14 @@
 
 import clsx from 'clsx';
 import Shell from '@/components/paperback/Shell';
-import { useThemeStore } from '@/store/themeStore';
+import { useThemeStore } from '@/components/paperback/platform';
+import { useNavStyle } from '@/components/paperback/useNavStyle';
+import { NAV_STYLES } from '@/services/paperback/navStyle';
 
 export default function AppearancePage() {
   const { themeMode, setThemeMode } = useThemeStore();
   const mode = themeMode === 'ambient' ? 'auto' : themeMode;
+  const [navStyle, setNavStyle] = useNavStyle();
 
   return (
     <Shell title='Themes'>
@@ -31,6 +34,21 @@ export default function AppearancePage() {
             Match system
           </button>
         </div>
+        <div className='pb-sec'>Navigation</div>
+        {NAV_STYLES.map((n) => (
+          <button
+            key={n.id}
+            className={clsx('pb-row pb-rowbtn', navStyle === n.id && 'pb-picked')}
+            aria-pressed={navStyle === n.id}
+            onClick={() => setNavStyle(n.id)}
+          >
+            <div className='pb-grow' style={{ paddingLeft: 6 }}>
+              <div className='pb-title'>{n.label}</div>
+              <div className='pb-label'>{n.note}</div>
+            </div>
+            <span className='pb-iconbtn'>{navStyle === n.id ? '✓' : ''}</span>
+          </button>
+        ))}
         <div className='pb-note'>
           Reader font, size, spacing, margins and page colors are set inside a book (tap the screen,
           then <b>Aa</b>) and are remembered per book or for all books.

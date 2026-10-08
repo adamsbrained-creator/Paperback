@@ -11,6 +11,7 @@ import {
   normalizeShelves,
   isPinned,
   isWordSaved,
+  setJournal,
   pinnedFirst,
   togglePin,
   removeWish,
@@ -136,6 +137,18 @@ describe('pinned books', () => {
   });
 });
 
+describe('journal', () => {
+  it('sets, replaces and clears a note per book without touching others', () => {
+    let s = setJournal(emptyShelves(), 'a', 'Loved the ending');
+    s = setJournal(s, 'b', 'Slow start');
+    expect(s.journal).toEqual({ a: 'Loved the ending', b: 'Slow start' });
+    s = setJournal(s, 'a', 'Changed my mind');
+    expect(s.journal['a']).toBe('Changed my mind');
+    s = setJournal(s, 'b', '   ');
+    expect(s.journal).toEqual({ a: 'Changed my mind' });
+  });
+});
+
 describe('normalizeShelves', () => {
   it('repairs bad input and keeps good data', () => {
     expect(normalizeShelves(null)).toEqual(emptyShelves());
@@ -146,7 +159,9 @@ describe('normalizeShelves', () => {
       collections: [{ id: 'c', name: 'N', hashes: ['h', 'h', 1] }, { id: '', name: 'bad' }],
       savedWords: [{ word: 'tide', note: 'n' }, { word: 'Tide' }, { word: '' }],
       pinned: ['a', 'a', 'b', 'c', 'd', 5],
+      journal: { a: 'keep', b: '   ', c: 7 },
     });
+    expect(s.journal).toEqual({ a: 'keep' });
     expect(s.pinned).toEqual(['a', 'b', 'c']);
     expect(s.savedWords).toEqual([{ word: 'tide', note: 'n', addedAt: 0 }]);
     expect(s.favorites).toEqual(['a']);

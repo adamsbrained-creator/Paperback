@@ -4,7 +4,8 @@ A personal ebook reader for Android: Readest's reading engine with its own desig
 white; Outfit and Newsreader), reading stats, goals and history, notes and bookmarks, favorites,
 ratings, wishlist, collections, dictionary and backup.
 
-The new design is being built screen by screen. Done so far: **Home**, **Library** (grid, shelf and list views), **Stats**, the bottom tab bar and the reader footer
+The new design is being built screen by screen. Done so far: **Home**, **Library** (shelf, grid, list and stacks views), **Stats**, four navigation styles
+(tab bar, dock, header switch, off; chosen in Settings → Themes) the reader footer and the reader menu (tap the page)
 ("23 pages left in chapter" · "31 / 355"). The
 other screens still use the earlier layout in the new colors.
 
@@ -47,3 +48,17 @@ If a build fails: open the run, click the red step, and send me that step's log.
 
 Replace or add files under `files/` (same folder layout) and run the build again. For a change in
 an existing Readest file, add a small edit to `apply.mjs`, which I can write for you.
+
+## Roadmap: less Readest
+
+The build downloads Readest and compiles all of it, which is most of the build time. Planned order for
+depending on it less:
+
+1. ~~Put every Readest import used by Paperback's screens behind one small adapter module.~~ Done:
+   `files/.../components/paperback/platform.ts` is now the only Paperback file that imports Readest code
+   (19 names, listed there by area). Replacing a name there replaces it for every screen.
+2. Give Paperback its own library list, reading progress, notes and stats storage.
+3. Render books with foliate-js directly (the EPUB engine Readest itself uses) instead of Readest's reader.
+4. Swap the Tauri/Rust shell for a lighter Android shell.
+
+Each step keeps the app working; the build gets shorter as Readest code is no longer compiled.

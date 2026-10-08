@@ -718,3 +718,65 @@
 .pb-trio .pb-card { padding: 16px 16px 14px; border-radius: 22px; }
 .pb-trio-val { font-size: 24px; font-weight: 600; letter-spacing: -0.01em; }
 .pb-ring-wrap .pb-title { font-size: 22px; }
+
+/* ---------- status bar strip, dock, header switch, menu button, picked row ---------- */
+.pb-statusscrim { position: fixed; top: 0; left: 0; right: 0; z-index: 25; background: var(--pb-bg); pointer-events: none; }
+.pb-dock {
+  position: fixed; left: 50%; transform: translateX(-50%); z-index: 20;
+  display: flex; align-items: center; gap: 6px; padding: 8px;
+  background: var(--pb-card); border: 1px solid rgba(127, 127, 127, 0.22); border-radius: 36px;
+}
+.pb-dock-item {
+  display: flex; align-items: center; justify-content: center; gap: 10px; height: 56px; min-width: 56px; padding: 0 16px;
+  border: 0; border-radius: 28px; background: none; color: var(--pb-sub); cursor: pointer;
+  font: 600 17px var(--font-outfit), 'Outfit', system-ui, sans-serif;
+}
+.pb-dock-item.on { background: var(--pb-ink); color: var(--pb-bg); }
+.pb-hswitch {
+  display: flex; width: fit-content; margin: 6px auto 0; padding: 5px; gap: 4px; border-radius: 26px; background: var(--pb-card);
+}
+.pb-hswitch button {
+  height: 44px; padding: 0 20px; border: 0; border-radius: 22px; background: none; color: var(--pb-sub); cursor: pointer;
+  font: 500 16px var(--font-outfit), 'Outfit', system-ui, sans-serif;
+}
+.pb-hswitch button.on { background: var(--pb-ac); color: var(--pb-on-ac); font-weight: 600; }
+.pb-fab {
+  position: fixed; right: 22px; z-index: 20; width: 56px; height: 56px; border: 0; border-radius: 28px;
+  background: var(--pb-ink); color: var(--pb-bg); display: flex; align-items: center; justify-content: center; cursor: pointer;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+}
+.pb-picked { outline: 2px solid var(--pb-ac); outline-offset: -2px; }
+
+/* ---------- Library: stacks ---------- */
+.pb-seg button { font-size: 15px; }
+.pb-stackblock { display: block; width: 100%; margin: 6px 0 24px; border: 0; background: none; text-align: center; color: inherit; font: inherit; cursor: pointer; }
+.pb-stackblock h2 { margin: 14px 0 2px; font-size: 28px; font-weight: 400; }
+.pb-fanrow { display: flex; justify-content: center; align-items: center; padding: 6px 0; }
+.pb-fancover { width: 112px; flex: none; margin-left: -44px; position: relative; }
+.pb-fancover:first-child { margin-left: 0; }
+.pb-fanmore {
+  width: 112px; aspect-ratio: 2 / 3; flex: none; margin-left: -28px; position: relative; z-index: 5;
+  display: flex; align-items: center; justify-content: center; border-radius: 16px; border: 3px solid var(--pb-bg);
+  background: var(--pb-card); font-size: 26px; font-weight: 500; transform: rotate(2deg);
+}
+
+/* ---------- journal page ---------- */
+.pb-jhead { display: flex; align-items: center; justify-content: space-between; height: 76px; padding-top: 4px; }
+.pb-pill.big { height: 48px; padding: 0 24px; border-radius: 24px; font-size: 17px; font-weight: 600; }
+.pb-pill:disabled { opacity: 0.45; }
+.pb-jtitle { margin: 2px 0 0; text-align: center; font-size: 46px; font-weight: 400; line-height: 1.05; letter-spacing: -0.01em; }
+.pb-squiggle { width: 130px; height: 5px; margin: 10px auto 0; border-radius: 3px; background: var(--pb-ac); }
+.pb-jcollage { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 8px; }
+.pb-jcover { flex: none; width: 42%; border: 0; padding: 0; background: none; transform: rotate(-3deg); cursor: pointer; }
+.pb-jquote {
+  flex: 1; min-width: 0; margin-top: 14px; padding: 16px; border: 0; border-radius: 22px; text-align: left;
+  background: var(--pb-card); color: var(--pb-ink); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1); cursor: pointer; font: inherit;
+}
+.pb-jq { font-size: 19px; font-style: italic; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.pb-jprogress { display: flex; align-items: center; gap: 18px; margin: 18px 0 6px 6px; }
+.pb-jpill { padding: 12px 20px; border-radius: 24px; background: var(--pb-ac); color: #111; font-weight: 600; font-size: 16px; transform: rotate(-4deg); }
+.pb-jnext { display: block; margin: 14px 0 22px 6px; border: 0; background: none; color: var(--pb-sub); font-size: 24px; font-style: italic; cursor: pointer; padding: 0; }
+.pb-journal {
+  width: 100%; border: 0; border-radius: 22px; padding: 16px 18px; resize: vertical; outline: 0;
+  background: var(--pb-card); color: var(--pb-ink); font-size: 19px; line-height: 1.45;
+}

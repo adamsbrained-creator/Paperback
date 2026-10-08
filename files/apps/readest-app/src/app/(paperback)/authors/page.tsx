@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useAppRouter } from '@/hooks/useAppRouter';
-import { navigateToLibrary } from '@/utils/nav';
+import { useAppRouter } from '@/components/paperback/platform';
+import { navigateToLibrary } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
 import { usePaperbackData } from '@/components/paperback/usePaperbackData';
 import { authorRows } from '@/services/paperback/libraryViews';

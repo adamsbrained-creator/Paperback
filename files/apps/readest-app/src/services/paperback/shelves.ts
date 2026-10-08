@@ -32,6 +32,7 @@ export interface Shelves {
   collections: Collection[];
   savedWords: SavedWord[];
   pinned: string[]; // up to MAX_PINNED book hashes, shown first
+  journal: Record<string, string>; // hash -> your own note about the book
 }
 
 export interface ShelfBook extends BookLike {
@@ -47,6 +48,7 @@ export const emptyShelves = (): Shelves => ({
   collections: [],
   savedWords: [],
   pinned: [],
+  journal: {},
 });
 
 const str = (v: unknown, max = 200): string => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -87,6 +89,12 @@ export function normalizeShelves(raw: unknown): Shelves {
         ? [...new Set((c['hashes'] as unknown[]).filter((x): x is string => typeof x === 'string'))]
         : [];
       out.collections.push({ id, name, hashes });
+    }
+  }
+  if (r['journal'] && typeof r['journal'] === 'object') {
+    for (const [hash, v] of Object.entries(r['journal'] as Record<string, unknown>)) {
+      const text = typeof v === 'string' ? v.slice(0, 20000) : '';
+      if (text.trim()) out.journal[hash] = text;
     }
   }
   if (Array.isArray(r['pinned'])) {
@@ -185,6 +193,14 @@ export const removeWord = (s: Shelves, word: string): Shelves => ({
 
 export const isWordSaved = (s: Shelves, word: string): boolean =>
   s.savedWords.some((x) => x.word.toLowerCase() === word.trim().toLowerCase());
+
+/** Sets your note about a book; an empty note removes it. */
+export function setJournal(s: Shelves, hash: string, text: string): Shelves {
+  const journal = { ...s.journal };
+  if (text.trim()) journal[hash] = text.slice(0, 20000);
+  else delete journal[hash];
+  return { ...s, journal };
+}
 
 export const isPinned = (s: Shelves, hash: string) => s.pinned.includes(hash);
 

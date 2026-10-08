@@ -1,9 +1,9 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { useEnv } from '@/context/EnvContext';
-import { useAppRouter } from '@/hooks/useAppRouter';
-import { navigateToLibrary } from '@/utils/nav';
+import { useEnv } from '@/components/paperback/platform';
+import { useAppRouter } from '@/components/paperback/platform';
+import { navigateToLibrary } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
 import { useShelves } from '@/components/paperback/useShelves';
 import { loadGoals, normalizeGoals, saveGoals } from '@/app/stats/goals';

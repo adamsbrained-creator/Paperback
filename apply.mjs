@@ -311,6 +311,15 @@ edit('apps/readest-app/src/services/constants.ts', {
   replace: '  showRemainingPages: true,\n',
 });
 
+// Reader menu: give the bottom icon row a class so Paperback can style it as a floating dock.
+edit('apps/readest-app/src/app/reader/components/footerbar/NavigationBar.tsx', {
+  what: 'mark the reader footer icon row (floating dock)',
+  marker: "'reader-nav-dock ",
+  anchor: "'not-eink:bg-base-200 eink:bg-base-100 z-30 mt-auto flex w-full justify-between px-8 py-4',",
+  replace:
+    "'reader-nav-dock not-eink:bg-base-200 eink:bg-base-100 z-30 mt-auto flex w-full justify-between px-8 py-4',",
+});
+
 // No analytics: an empty PostHog key makes the app skip it entirely.
 {
   const envFile = path.join(root, 'apps/readest-app/.env');

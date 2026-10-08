@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { PiList, PiMagnifyingGlass, PiPlus } from 'react-icons/pi';
-import { useAppRouter } from '@/hooks/useAppRouter';
+import { useAppRouter } from '@/components/paperback/platform';
 import MenuSheet from './MenuSheet';
 
 /** Menu button · wordmark · search (or add). Owns the menu sheet. */

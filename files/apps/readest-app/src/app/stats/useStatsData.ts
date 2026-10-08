@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useEnv } from '@/context/EnvContext';
-import { useLibrary } from '@/hooks/useLibrary';
-import { useLibraryStore } from '@/store/libraryStore';
-import { StatisticsDb } from '@/services/statistics/statisticsDb';
+import { useEnv } from '@/components/paperback/platform';
+import { useLibrary } from '@/components/paperback/platform';
+import { useLibraryStore } from '@/components/paperback/platform';
+import { StatisticsDb } from '@/components/paperback/platform';
 import { rangeStart, type StatEventRow, type StatsRange } from '@/services/statistics/statsAggregate';
-import type { Book } from '@/types/book';
+import type { Book } from '@/components/paperback/platform';
 
 /** Loads every page-read event once (a few thousand rows at most) plus the library. */
 export function useStatsData() {

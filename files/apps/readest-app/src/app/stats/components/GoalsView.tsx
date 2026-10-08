@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import type { Book } from '@/types/book';
+import type { Book } from '@/components/paperback/platform';
 import {
   booksPace,
   computeStreaks,

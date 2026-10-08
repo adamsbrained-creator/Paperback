@@ -39,3 +39,77 @@
 .progressinfo .sticky-progress-tick {
   opacity: 0.35;
 }
+
+/* ---------- Reader menu (tap the page) in the Paperback look ----------
+   Top: round chips. Bottom: a floating dock. Panels: rounded sheets with a coral slider. */
+.header-bar {
+  box-shadow: none !important;
+  border-bottom: 0 !important;
+}
+.header-bar .btn,
+.header-bar .window-button {
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  background: var(--color-base-300);
+  color: var(--color-base-content);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.header-bar .btn:hover,
+.header-bar .window-button:hover {
+  background: var(--color-base-300);
+  filter: brightness(0.95);
+}
+
+.reader-nav-dock {
+  width: auto !important;
+  margin: 0 16px calc(env(safe-area-inset-bottom, 0px) + 8px) !important;
+  padding: 6px 10px !important;
+  justify-content: space-around !important;
+  border-radius: 36px;
+  background: var(--color-base-300) !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+}
+.reader-nav-dock button,
+.reader-nav-dock .btn {
+  width: 48px;
+  height: 48px;
+  min-height: 48px;
+  padding: 0;
+  border-radius: 9999px;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.reader-nav-dock .text-blue-500 {
+  color: #f46b4e !important;
+}
+.reader-nav-dock button:has(.text-blue-500) {
+  background: rgba(244, 107, 78, 0.16);
+}
+
+.footerbar-progress-mobile,
+.footerbar-font-mobile,
+.footerbar-color-mobile {
+  border-radius: 28px 28px 0 0;
+  box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.08);
+}
+.slider .slider-fill {
+  background: #f46b4e;
+}
+
+.dropdown-content {
+  border-radius: 20px;
+  border: 0;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+.dropdown-content .menu li > *,
+.dropdown-content li > * {
+  border-radius: 14px;
+}

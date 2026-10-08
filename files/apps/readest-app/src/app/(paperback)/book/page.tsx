@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useAppRouter } from '@/hooks/useAppRouter';
+import { useAppRouter } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
 import { usePaperbackData } from '@/components/paperback/usePaperbackData';
 import { usePaperbackOpenBook } from '@/components/paperback/useOpenBook';
@@ -151,8 +151,8 @@ export default function BookDetailsPage() {
           <button className='pb-btn' onClick={() => openBook(book)}>
             {started ? 'Continue' : 'Start reading'}
           </button>
-          <button className='pb-btn ghost' onClick={() => router.push(`/notes?book=${book.hash}`)}>
-            Notes
+          <button className='pb-btn ghost' onClick={() => router.push(`/journal?hash=${book.hash}`)}>
+            Journal
           </button>
         </div>
       </div>

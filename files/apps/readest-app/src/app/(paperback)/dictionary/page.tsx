@@ -2,13 +2,13 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { PiMagnifyingGlass } from 'react-icons/pi';
-import { useEnv } from '@/context/EnvContext';
-import { useCustomDictionaryStore } from '@/store/customDictionaryStore';
+import { useEnv } from '@/components/paperback/platform';
+import { useCustomDictionaryStore } from '@/components/paperback/platform';
 import {
   DictionaryResultsBody,
   DictionaryResultsHeader,
   useDictionaryResults,
-} from '@/app/reader/components/annotator/DictionaryResultsView';
+} from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
 import { useShelves } from '@/components/paperback/useShelves';
 import { definitionSnippet } from '@/services/paperback/backup';

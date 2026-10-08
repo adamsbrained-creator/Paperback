@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useAppRouter } from '@/hooks/useAppRouter';
+import { useAppRouter } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
 import BookRow from '@/components/paperback/BookRow';
 import { usePaperbackData } from '@/components/paperback/usePaperbackData';
@@ -22,6 +22,9 @@ export default function CollectionPage() {
   const [shelves, update, ready] = useShelves();
   const [id, setId] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
+  // Rename and delete use in-app controls: native prompt()/confirm() dialogs are unreliable in a WebView.
+  const [renaming, setRenaming] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   useEffect(() => setId(new URLSearchParams(window.location.search).get('id')), []);
 
   const col = useMemo(
@@ -51,26 +54,54 @@ export default function CollectionPage() {
             <button className={editing ? 'pb-pill on' : 'pb-pill'} onClick={() => setEditing(!editing)}>
               {editing ? 'Done' : 'Add / remove books'}
             </button>
-            <button
-              className='pb-pill'
-              onClick={() => {
-                const next = window.prompt('Rename collection', col.name);
-                if (next) update((s) => renameCollection(s, col.id, next));
-              }}
-            >
+            <button className='pb-pill' onClick={() => setRenaming(col.name)}>
               Rename
             </button>
             <button
-              className='pb-pill'
+              className={confirmDelete ? 'pb-pill on' : 'pb-pill'}
               onClick={() => {
-                if (window.confirm(`Delete “${col.name}”? Your books are not deleted.`)) {
-                  update((s) => deleteCollection(s, col.id));
-                  router.replace('/collections');
+                if (!confirmDelete) {
+                  setConfirmDelete(true);
+                  setTimeout(() => setConfirmDelete(false), 4000);
+                  return;
                 }
+                update((s) => deleteCollection(s, col.id));
+                router.replace('/collections');
               }}
             >
-              Delete
+              {confirmDelete ? 'Tap again to delete' : 'Delete'}
             </button>
+          </div>
+        )}
+
+        {manual && renaming !== null && (
+          <div className='pb-card pb-stack'>
+            <input
+              className='pb-text'
+              value={renaming}
+              onChange={(e) => setRenaming(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && renaming.trim()) {
+                  update((s) => renameCollection(s, col.id, renaming));
+                  setRenaming(null);
+                }
+              }}
+            />
+            <div className='pb-grid2'>
+              <button
+                className='pb-btn'
+                disabled={!renaming.trim()}
+                onClick={() => {
+                  update((s) => renameCollection(s, col.id, renaming));
+                  setRenaming(null);
+                }}
+              >
+                Save
+              </button>
+              <button className='pb-btn ghost' onClick={() => setRenaming(null)}>
+                Cancel
+              </button>
+            </div>
           </div>
         )}
 

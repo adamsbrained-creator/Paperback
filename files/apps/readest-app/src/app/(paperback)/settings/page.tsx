@@ -1,8 +1,8 @@
 'use client';
 
 import { PiBooks, PiCaretRight, PiChartBar, PiCloudArrowUp, PiInfo, PiPalette, PiTarget } from 'react-icons/pi';
-import { useAppRouter } from '@/hooks/useAppRouter';
-import { navigateToLibrary } from '@/utils/nav';
+import { useAppRouter } from '@/components/paperback/platform';
+import { navigateToLibrary } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
 
 export default function SettingsPage() {

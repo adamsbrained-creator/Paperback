@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useAppRouter } from '@/hooks/useAppRouter';
+import { useAppRouter } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
 import BookRow from '@/components/paperback/BookRow';
 import { usePaperbackData } from '@/components/paperback/usePaperbackData';

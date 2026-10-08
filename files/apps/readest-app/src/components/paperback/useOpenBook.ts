@@ -1,14 +1,14 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useEnv } from '@/context/EnvContext';
-import { useAppRouter } from '@/hooks/useAppRouter';
-import { useMakeBookAvailable } from '@/hooks/useMakeBookAvailable';
-import { useBookTransferActions } from '@/app/library/hooks/useBookTransferActions';
-import { useLibraryStore } from '@/store/libraryStore';
-import { navigateToReader } from '@/utils/nav';
-import { isAudiobook } from '@/utils/audiobook';
-import type { Book } from '@/types/book';
+import { useEnv } from '@/components/paperback/platform';
+import { useAppRouter } from '@/components/paperback/platform';
+import { useMakeBookAvailable } from '@/components/paperback/platform';
+import { useBookTransferActions } from '@/components/paperback/platform';
+import { useLibraryStore } from '@/components/paperback/platform';
+import { navigateToReader } from '@/components/paperback/platform';
+import { isAudiobook } from '@/components/paperback/platform';
+import type { Book } from '@/components/paperback/platform';
 
 // There is no progress UI on these screens, so the download plumbing gets no-op sinks
 // (same approach as Readest's deep-link handler).

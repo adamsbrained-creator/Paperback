@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useEnv } from '@/context/EnvContext';
-import { useSettingsStore } from '@/store/settingsStore';
+import { useEnv } from '@/components/paperback/platform';
+import { useSettingsStore } from '@/components/paperback/platform';
 import { extractNotes, type NoteRow } from '@/services/paperback/notesViews';
-import type { Book } from '@/types/book';
+import type { Book } from '@/components/paperback/platform';
 
 /**
  * Reads the notes, highlights and bookmarks of `books` from their per-book config

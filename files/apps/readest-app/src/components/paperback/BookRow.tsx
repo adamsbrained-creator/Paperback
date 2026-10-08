@@ -1,6 +1,6 @@
 'use client';
 
-import type { Book } from '@/types/book';
+import type { Book } from '@/components/paperback/platform';
 import { Thumb } from '@/app/stats/components/ui';
 
 /** A tappable book row (cover, title, subtitle) with an optional trailing control. */

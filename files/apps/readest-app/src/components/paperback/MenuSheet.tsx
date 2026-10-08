@@ -1,7 +1,7 @@
 'use client';
 
 import { PiCaretRight } from 'react-icons/pi';
-import { useAppRouter } from '@/hooks/useAppRouter';
+import { useAppRouter } from '@/components/paperback/platform';
 import Sheet from './Sheet';
 
 const GROUPS: { label: string; items: { name: string; path: string }[] }[] = [

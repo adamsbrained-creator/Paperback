@@ -3,8 +3,8 @@
 import clsx from 'clsx';
 import { useEffect, useMemo, useState } from 'react';
 import { PiMagnifyingGlass } from 'react-icons/pi';
-import type { Book } from '@/types/book';
-import { useAppRouter } from '@/hooks/useAppRouter';
+import type { Book } from '@/components/paperback/platform';
+import { useAppRouter } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
 import AppHeader from '@/components/paperback/AppHeader';
 import BookRow from '@/components/paperback/BookRow';
@@ -21,12 +21,13 @@ import {
   type LibraryFilter,
 } from '@/services/paperback/libraryViews';
 
-type View = 'shelf' | 'grid' | 'list';
+type View = 'shelf' | 'grid' | 'list' | 'stacks';
 const VIEW_KEY = 'paperback.library.view';
 const VIEWS: { id: View; label: string }[] = [
   { id: 'shelf', label: 'Shelf' },
   { id: 'grid', label: 'Grid' },
   { id: 'list', label: 'List' },
+  { id: 'stacks', label: 'Stacks' },
 ];
 const FILTERS: { id: LibraryFilter; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -82,7 +83,7 @@ export default function BooksPage() {
   useEffect(() => {
     try {
       const v = localStorage.getItem(VIEW_KEY);
-      if (v === 'shelf' || v === 'grid' || v === 'list') setView(v);
+      if (v === 'shelf' || v === 'grid' || v === 'list' || v === 'stacks') setView(v);
     } catch {
       /* keep default */
     }
@@ -108,7 +109,7 @@ export default function BooksPage() {
         <h1 className='pb-bigtitle pb-serif'>Library</h1>
         <span className='pb-label'>
           {all.length} {all.length === 1 ? 'book' : 'books'}
-          {view === 'shelf' && shelfCount ? ` · ${shelfCount} ${shelfCount === 1 ? 'shelf' : 'shelves'}` : ''}
+          {(view === 'shelf' || view === 'stacks') && shelfCount ? ` · ${shelfCount} ${shelfCount === 1 ? 'shelf' : 'shelves'}` : ''}
         </span>
       </div>
 
@@ -230,7 +231,37 @@ export default function BooksPage() {
             );
           })}
 
-        {view !== 'shelf' && shown.length > limit && (
+        {view === 'stacks' &&
+          SHELVES.filter((s) => sections[s.id].length > 0).map((s) => {
+            const list = sections[s.id];
+            return (
+              <button
+                key={s.id}
+                className='pb-stackblock'
+                aria-label={`Show ${s.label}`}
+                onClick={() => (setFilter(s.id), pickView('grid'))}
+              >
+                <div className='pb-fanrow'>
+                  {list.slice(0, 3).map((b, i) => (
+                    <div
+                      key={b.hash}
+                      className='pb-fancover'
+                      style={{ transform: `rotate(${[-2, 1, -1][i] ?? 0}deg)`, zIndex: i + 1 }}
+                    >
+                      <Thumb md5={b.hash} book={b} size='fill' />
+                    </div>
+                  ))}
+                  {list.length > 3 && <div className='pb-fanmore'>+{list.length - 3}</div>}
+                </div>
+                <h2 className='pb-serif'>{s.label}</h2>
+                <div className='pb-label'>
+                  {list.length} {list.length === 1 ? 'book' : 'books'}
+                </div>
+              </button>
+            );
+          })}
+
+        {(view === 'grid' || view === 'list') && shown.length > limit && (
           <button className='pb-btn ghost' onClick={() => setLimit(limit + PAGE)}>
             Show more
           </button>
