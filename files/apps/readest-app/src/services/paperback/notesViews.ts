@@ -25,7 +25,7 @@ export interface NoteRow {
   note: string; // the reader's own note ('' for plain highlights)
   color: string; // hex
   cfi: string;
-  page?: number;
+  page?: number | undefined;
   at: number; // ms, last change
 }
 

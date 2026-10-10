@@ -37,9 +37,7 @@ export default function BookDetailsPage() {
     );
   }
 
-  const language = Array.isArray(book.metadata?.language)
-    ? book.metadata?.language[0]
-    : book.metadata?.language;
+  const language = book.language;
   const pages = book.progress?.[1];
   const left = timeLeftLabel(book, pace);
   const started = progressFraction(book) > 0;

@@ -7,8 +7,8 @@ import { useMakeBookAvailable } from '@/components/paperback/platform';
 import { useBookTransferActions } from '@/components/paperback/platform';
 import { useLibraryStore } from '@/components/paperback/platform';
 import { navigateToReader } from '@/components/paperback/platform';
-import { isAudiobook } from '@/components/paperback/platform';
-import type { Book } from '@/components/paperback/platform';
+import { eventDispatcher, isAudiobook, sourceBook } from '@/components/paperback/platform';
+import type { PBook } from '@/services/paperback/library';
 
 // There is no progress UI on these screens, so the download plumbing gets no-op sinks
 // (same approach as Readest's deep-link handler).
@@ -26,12 +26,18 @@ export function usePaperbackOpenBook() {
   const makeBookAvailable = useMakeBookAvailable({ setLoading: noop, handleBookDownload });
 
   return useCallback(
-    async (book: Book, cfi?: string) => {
-      if (isAudiobook(book)) {
-        router.push(`/player?id=${book.hash}`);
+    async (book: PBook, cfi?: string) => {
+      const src = sourceBook(book);
+      if (!src) {
+        // Paperback's saved list shows before Readest's library has finished loading.
+        eventDispatcher.dispatch('toast', { message: 'Your library is still loading. Try again in a moment.', type: 'info' });
         return;
       }
-      if (!(await makeBookAvailable(book))) return;
+      if (isAudiobook(src)) {
+        router.push(`/player?id=${src.hash}`);
+        return;
+      }
+      if (!(await makeBookAvailable(src))) return;
       const params = new URLSearchParams();
       if (cfi) params.set('cfi', cfi);
       navigateToReader(router, [book.hash], params.size ? params.toString() : undefined);

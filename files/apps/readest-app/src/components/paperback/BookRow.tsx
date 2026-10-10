@@ -1,6 +1,6 @@
 'use client';
 
-import type { Book } from '@/components/paperback/platform';
+import type { PBook } from '@/services/paperback/library';
 import { Thumb } from '@/app/stats/components/ui';
 
 /** A tappable book row (cover, title, subtitle) with an optional trailing control. */
@@ -10,7 +10,7 @@ export default function BookRow({
   onOpen,
   trailing,
 }: {
-  book: Book;
+  book: PBook;
   sub?: string;
   onOpen: () => void;
   trailing?: React.ReactNode;

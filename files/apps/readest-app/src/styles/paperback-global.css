@@ -113,3 +113,31 @@
 .dropdown-content li > * {
   border-radius: 14px;
 }
+
+/* Reader menu: the dock sits on a page-coloured strip so the footer text behind it
+   ("pages left", "page / total") never peeks out at the dock's rounded corners. */
+.reader-nav-dock {
+  position: relative;
+  isolation: isolate;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+.reader-nav-dock::before {
+  content: '';
+  position: absolute;
+  left: -16px;
+  right: -16px;
+  top: -6px;
+  bottom: calc(-1 * (env(safe-area-inset-bottom, 0px) + 8px));
+  background: var(--color-base-100);
+  z-index: -2;
+}
+.reader-nav-dock::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 36px;
+  background: var(--color-base-300);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+  z-index: -1;
+}

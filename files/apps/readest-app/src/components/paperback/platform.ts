@@ -6,8 +6,8 @@
 //
 // Left to replace (by area):
 //   library & reading data ... useLibrary, useLibraryStore, StatisticsDb, useBookTransferActions,
-//                              useMakeBookAvailable, Book
-//   app shell ................. useEnv, useAppRouter, navigateToLibrary, navigateToReader, useTheme,
+//                              useMakeBookAvailable, Book, sourceBook
+//   app shell ................. useEnv, useAppRouter, eventDispatcher, navigateToLibrary, navigateToReader, useTheme,
 //                              useThemeStore, useSettingsStore
 //   covers & audio ............ BookCover, isAudiobook
 //   dictionary ................ useDictionaryResults, DictionaryResultsHeader, DictionaryResultsBody,
@@ -30,6 +30,11 @@ export { useCustomDictionaryStore } from '@/store/customDictionaryStore';
 export { useLibraryStore } from '@/store/libraryStore';
 export { useSettingsStore } from '@/store/settingsStore';
 export { useThemeStore } from '@/store/themeStore';
-export type { Book } from '@/types/book';
+import type { Book } from '@/types/book';
+export type { Book };
 export { isAudiobook } from '@/utils/audiobook';
+export { eventDispatcher } from '@/utils/event';
 export { navigateToLibrary, navigateToReader } from '@/utils/nav';
+
+/** The Readest book behind a Paperback book; undefined until Readest's library has loaded. */
+export const sourceBook = (b: { source?: unknown }): Book | undefined => b.source as Book | undefined;

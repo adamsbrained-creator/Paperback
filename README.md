@@ -21,6 +21,8 @@ result is compiled into an APK. Nothing from Readest needs to be uploaded here.
 | `apply.mjs` | Copies `files/` in and makes the few small edits Readest's own files need |
 | `.github/workflows/android.yml` | The build |
 
+See `CHANGELOG.md` for what each version changed and where to check it.
+
 ## Set up
 
 1. Make a **new private repo** (if an old attempt exists, delete it under Settings → Danger zone).

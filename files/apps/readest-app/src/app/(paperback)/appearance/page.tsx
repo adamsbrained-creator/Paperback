@@ -4,12 +4,14 @@ import clsx from 'clsx';
 import Shell from '@/components/paperback/Shell';
 import { useThemeStore } from '@/components/paperback/platform';
 import { useNavStyle } from '@/components/paperback/useNavStyle';
-import { NAV_STYLES } from '@/services/paperback/navStyle';
+import { useHomeStyle } from '@/components/paperback/useHomeStyle';
+import { HOME_STYLES, NAV_STYLES } from '@/services/paperback/navStyle';
 
 export default function AppearancePage() {
   const { themeMode, setThemeMode } = useThemeStore();
   const mode = themeMode === 'ambient' ? 'auto' : themeMode;
   const [navStyle, setNavStyle] = useNavStyle();
+  const [homeStyle, setHomeStyle] = useHomeStyle();
 
   return (
     <Shell title='Themes'>
@@ -34,6 +36,22 @@ export default function AppearancePage() {
             Match system
           </button>
         </div>
+        <div className='pb-sec'>Home layout</div>
+        {HOME_STYLES.map((h) => (
+          <button
+            key={h.id}
+            className={clsx('pb-row pb-rowbtn', homeStyle === h.id && 'pb-picked')}
+            aria-pressed={homeStyle === h.id}
+            onClick={() => setHomeStyle(h.id)}
+          >
+            <div className='pb-grow' style={{ paddingLeft: 6 }}>
+              <div className='pb-title'>{h.label}</div>
+              <div className='pb-label'>{h.note}</div>
+            </div>
+            <span className='pb-iconbtn'>{homeStyle === h.id ? '✓' : ''}</span>
+          </button>
+        ))}
+
         <div className='pb-sec'>Navigation</div>
         {NAV_STYLES.map((n) => (
           <button

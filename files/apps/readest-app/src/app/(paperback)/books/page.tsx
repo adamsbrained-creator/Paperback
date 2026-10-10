@@ -3,11 +3,13 @@
 import clsx from 'clsx';
 import { useEffect, useMemo, useState } from 'react';
 import { PiMagnifyingGlass } from 'react-icons/pi';
-import type { Book } from '@/components/paperback/platform';
+import type { PBook } from '@/services/paperback/library';
 import { useAppRouter } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
 import AppHeader from '@/components/paperback/AppHeader';
+import BentoView from '@/components/paperback/BentoView';
 import BookRow from '@/components/paperback/BookRow';
+import { useBooknotes } from '@/components/paperback/useBooknotes';
 import { useLongPress } from '@/components/paperback/useLongPress';
 import { usePaperbackData } from '@/components/paperback/usePaperbackData';
 import { usePaperbackOpenBook } from '@/components/paperback/useOpenBook';
@@ -21,13 +23,14 @@ import {
   type LibraryFilter,
 } from '@/services/paperback/libraryViews';
 
-type View = 'shelf' | 'grid' | 'list' | 'stacks';
+type View = 'shelf' | 'grid' | 'list' | 'stacks' | 'bento';
 const VIEW_KEY = 'paperback.library.view';
 const VIEWS: { id: View; label: string }[] = [
   { id: 'shelf', label: 'Shelf' },
   { id: 'grid', label: 'Grid' },
   { id: 'list', label: 'List' },
   { id: 'stacks', label: 'Stacks' },
+  { id: 'bento', label: 'Bento' },
 ];
 const FILTERS: { id: LibraryFilter; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -53,9 +56,9 @@ function PressableCover({
   className,
   style,
 }: {
-  book: Book;
-  onOpen: (b: Book) => void;
-  onDetails: (b: Book) => void;
+  book: PBook;
+  onOpen: (b: PBook) => void;
+  onDetails: (b: PBook) => void;
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
@@ -83,7 +86,7 @@ export default function BooksPage() {
   useEffect(() => {
     try {
       const v = localStorage.getItem(VIEW_KEY);
-      if (v === 'shelf' || v === 'grid' || v === 'list' || v === 'stacks') setView(v);
+      if (v === 'shelf' || v === 'grid' || v === 'list' || v === 'stacks' || v === 'bento') setView(v);
     } catch {
       /* keep default */
     }
@@ -100,7 +103,9 @@ export default function BooksPage() {
   const all = useMemo(() => sortRecent(library, lastRead), [library, lastRead]);
   const shown = useMemo(() => filterLibrary(all, filter, query), [all, filter, query]);
   const sections = useMemo(() => shelfSections(shown), [shown]);
-  const details = (b: Book) => router.push(`/book?hash=${b.hash}`);
+  const details = (b: PBook) => router.push(`/book?hash=${b.hash}`);
+  const bentoBooks = useMemo(() => shown.slice(0, 8), [shown]);
+  const bentoNotes = useBooknotes(bentoBooks, view === 'bento');
   const shelfCount = SHELVES.filter((s) => sections[s.id].length > 0).length;
 
   return (
@@ -230,6 +235,16 @@ export default function BooksPage() {
               </div>
             );
           })}
+
+        {view === 'bento' && shown.length > 0 && (
+          <BentoView
+            books={shown}
+            notes={bentoNotes}
+            open={openBook}
+            onStack={() => pickView('grid')}
+            onNotes={() => router.push('/notes')}
+          />
+        )}
 
         {view === 'stacks' &&
           SHELVES.filter((s) => sections[s.id].length > 0).map((s) => {

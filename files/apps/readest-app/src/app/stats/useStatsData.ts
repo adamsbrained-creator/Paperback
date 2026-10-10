@@ -1,18 +1,20 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useEnv } from '@/components/paperback/platform';
-import { useLibrary } from '@/components/paperback/platform';
-import { useLibraryStore } from '@/components/paperback/platform';
-import { StatisticsDb } from '@/components/paperback/platform';
+import { useEnv, useLibrary, useLibraryStore, StatisticsDb } from '@/components/paperback/platform';
+import { useCatalog } from '@/components/paperback/useCatalog';
+import type { PBook } from '@/services/paperback/library';
 import { rangeStart, type StatEventRow, type StatsRange } from '@/services/statistics/statsAggregate';
-import type { Book } from '@/components/paperback/platform';
 
-/** Loads every page-read event once (a few thousand rows at most) plus the library. */
+/**
+ * Loads every page-read event once (a few thousand rows at most) and Paperback's own book list
+ * (see useCatalog: shown from Paperback's saved copy, refreshed from Readest's library).
+ */
 export function useStatsData() {
   const { appService } = useEnv();
-  const { libraryLoaded } = useLibrary();
-  const library = useLibraryStore((s) => s.library);
+  const { libraryLoaded: readestLoaded } = useLibrary();
+  const readestLibrary = useLibraryStore((s) => s.library);
+  const catalog = useCatalog(readestLibrary, readestLoaded);
   const [events, setEvents] = useState<StatEventRow[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,16 +37,12 @@ export function useStatsData() {
   }, [appService]);
 
   const now = useMemo(() => new Date(), []);
-  const booksByHash = useMemo(() => {
-    const map = new Map<string, Book>();
-    for (const b of library) if (!b.deletedAt) map.set(b.hash, b);
-    return map;
-  }, [library]);
+  const library: PBook[] = catalog.books;
 
-  return { events, error, now, library, libraryLoaded, booksByHash };
+  return { events, error, now, library, libraryLoaded: catalog.ready, booksByHash: catalog.byHash };
 }
 
-type FinishedLike = Pick<Book, 'deletedAt' | 'readingStatus' | 'readingStatusUpdatedAt' | 'updatedAt'>;
+type FinishedLike = Pick<PBook, 'deletedAt' | 'readingStatus' | 'readingStatusUpdatedAt' | 'updatedAt'>;
 
 /** Books marked finished whose status changed at/after `since` (ms). */
 export function countFinishedSince(library: FinishedLike[], since: Date): number {

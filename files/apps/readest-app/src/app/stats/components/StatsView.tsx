@@ -2,7 +2,7 @@
 
 import clsx from 'clsx';
 import { useEffect, useMemo, useState } from 'react';
-import type { Book } from '@/components/paperback/platform';
+import type { PBook } from '@/services/paperback/library';
 import {
   buildHeatmap,
   computeStreaks,
@@ -31,8 +31,8 @@ const RANGES: { id: StatsRange; label: string }[] = [
 
 interface Props {
   events: StatEventRow[];
-  library: Book[];
-  booksByHash: Map<string, Book>;
+  library: PBook[];
+  booksByHash: Map<string, PBook>;
   now: Date;
   onOpenTab: (tab: 'goals' | 'history') => void;
 }
@@ -208,7 +208,7 @@ export default function StatsView({ events, library, booksByHash, now, onOpenTab
               {formatDuration(b.seconds)}
             </div>
           </div>
-          <div className='pb-label'>{Math.round(b.share * 100)}%</div>
+          <div className='pb-label'>{Math.round(b.share * 100)}% of time</div>
         </div>
       ))}
 

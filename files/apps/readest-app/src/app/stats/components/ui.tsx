@@ -1,8 +1,8 @@
 'use client';
 
 import clsx from 'clsx';
-import type { Book } from '@/components/paperback/platform';
-import { BookCover }from '@/components/paperback/platform';
+import { BookCover, sourceBook } from '@/components/paperback/platform';
+import type { PBook } from '@/services/paperback/library';
 
 export function Pills<T extends string>({
   options,
@@ -95,15 +95,16 @@ export function Thumb({
   size,
 }: {
   md5: string;
-  book?: Book;
+  book?: PBook;
   size?: 'lg' | 'fill';
 }) {
+  const src = book ? sourceBook(book) : undefined;
   return (
     <div className={clsx('pb-thumb', size)}>
       <div className={clsx('pb-art', `g${artIndex(md5)}`)}>
         <span className='pb-art-title'>{book?.title}</span>
       </div>
-      {book && <BookCover book={book} mode='list' />}
+      {src && <BookCover book={src} mode='list' />}
     </div>
   );
 }

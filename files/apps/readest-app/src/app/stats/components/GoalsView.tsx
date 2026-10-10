@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import type { Book } from '@/components/paperback/platform';
+import type { PBook } from '@/services/paperback/library';
 import {
   booksPace,
   computeStreaks,
@@ -16,7 +16,7 @@ import { Progress, Ring } from './ui';
 
 interface Props {
   events: StatEventRow[];
-  library: Book[];
+  library: PBook[];
   now: Date;
 }
 

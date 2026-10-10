@@ -9,19 +9,23 @@ import BookRow from '@/components/paperback/BookRow';
 import { usePaperbackData } from '@/components/paperback/usePaperbackData';
 import { usePaperbackOpenBook } from '@/components/paperback/useOpenBook';
 import { useShelves } from '@/components/paperback/useShelves';
+import { useHomeStyle } from '@/components/paperback/useHomeStyle';
+import PileHome from '@/components/paperback/PileHome';
 import { Thumb } from '@/app/stats/components/ui';
 import { computeStreaks, formatDuration, secondsByDay } from '@/services/statistics/statsAggregate';
 import {
   currentlyReading,
+  finishedBooks,
   liveBooks,
   progressFraction,
   progressPercent,
+  recentlyRead,
   timeLeftLabel,
   todayTotals,
 } from '@/services/paperback/libraryViews';
 import { MAX_PINNED, isPinned, togglePin } from '@/services/paperback/shelves';
 
-export default function HomePage() {
+function ClassicHome() {
   const router = useAppRouter();
   const openBook = usePaperbackOpenBook();
   const { events, now, library, booksByHash, lastRead, pace, loaded } = usePaperbackData();
@@ -132,4 +136,34 @@ export default function HomePage() {
       </Sheet>
     </Shell>
   );
+}
+
+function PileHomeConnected() {
+  const openBook = usePaperbackOpenBook();
+  const { events, now, library, lastRead } = usePaperbackData();
+  const recent = useMemo(() => recentlyRead(library, lastRead, 5), [library, lastRead]);
+  const reading = useMemo(() => currentlyReading(library, lastRead), [library, lastRead]);
+  const finished = useMemo(() => finishedBooks(library), [library]);
+  const finishedRecent = useMemo(
+    () => finished.filter((b) => now.getTime() - (b.readingStatusUpdatedAt ?? b.updatedAt) <= 30 * 864e5).length,
+    [finished, now],
+  );
+  const streak = useMemo(() => computeStreaks(secondsByDay(events), now).current, [events, now]);
+  return (
+    <PileHome
+      recent={recent}
+      reading={reading}
+      finished={finished}
+      finishedRecent={finishedRecent}
+      streak={streak}
+      open={openBook}
+    />
+  );
+}
+
+export default function HomePage() {
+  const [homeStyle, , ready] = useHomeStyle();
+  // Wait for the saved choice so the wrong layout never flashes.
+  if (!ready) return <Shell title='Paperback' tab='home'>{null}</Shell>;
+  return homeStyle === 'pile' ? <PileHomeConnected /> : <ClassicHome />;
 }

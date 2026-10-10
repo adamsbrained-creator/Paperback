@@ -780,3 +780,68 @@
   width: 100%; border: 0; border-radius: 22px; padding: 16px 18px; resize: vertical; outline: 0;
   background: var(--pb-card); color: var(--pb-ink); font-size: 19px; line-height: 1.45;
 }
+
+/* ---------- Home: pile layout ---------- */
+.pb-pilehead { display: grid; grid-template-columns: 56px 1fr 56px; align-items: center; height: 84px; padding-top: 4px; }
+.pb-orb {
+  width: 52px; height: 52px; border: 0; border-radius: 26px; cursor: pointer;
+  background: linear-gradient(135deg, #f46b4e, #ffa95c);
+  box-shadow: 0 0 0 7px rgba(244, 107, 78, 0.16);
+}
+.pb-pilemark { text-align: center; font-size: 40px; font-weight: 400; letter-spacing: -0.01em; }
+.pb-streakbadge {
+  justify-self: end; min-width: 56px; height: 44px; padding: 0 16px; border: 0; border-radius: 22px; cursor: pointer;
+  background: var(--pb-ac); color: #111; font: 600 20px var(--font-outfit), 'Outfit', system-ui, sans-serif;
+}
+.pb-pile { position: relative; aspect-ratio: 1 / 1.08; margin: 8px 0 26px; }
+.pb-pile-item { position: absolute; border: 0; padding: 0; background: none; cursor: pointer; }
+.pb-pile-item.s0 { left: 14%; top: 33%; width: 34%; transform: rotate(-4deg); z-index: 5; }
+.pb-pile-item.s1 { left: 5%; top: 17%; width: 29%; transform: rotate(-6deg); z-index: 1; }
+.pb-pile-item.s2 { left: 34%; top: 0; width: 30%; transform: rotate(2deg); z-index: 1; }
+.pb-pile-item.s3 { left: 63%; top: 6%; width: 31%; transform: rotate(5deg); z-index: 1; }
+.pb-pile-item.s4 { left: 61%; top: 38%; width: 31%; transform: rotate(3deg); z-index: 2; }
+.pb-pile-note {
+  position: absolute; left: 33%; top: 37%; width: 42%; z-index: 3; transform: rotate(-2deg); text-align: left;
+  padding: 14px 16px; border: 0; border-radius: 22px; background: var(--pb-bg); color: var(--pb-ink);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14); cursor: pointer; font: inherit;
+}
+.pb-notechip { display: inline-block; padding: 4px 12px; margin-bottom: 8px; border-radius: 14px; background: #111; color: #fff; font-size: 13px; font-weight: 500; }
+.pb-pile-quote { font-size: 17px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+.pb-pilegrid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.pb-pilebox {
+  position: relative; display: block; width: 100%; aspect-ratio: 1; border: 1px solid rgba(127, 127, 127, 0.18);
+  border-radius: 44px; background: var(--pb-card); cursor: pointer; overflow: visible; padding: 0;
+}
+.pb-minicard { position: absolute; width: 36%; }
+.pb-minicard.m0 { left: 14%; top: 12%; transform: rotate(-3deg); }
+.pb-minicard.m1 { left: 46%; top: 17%; transform: rotate(5deg); }
+.pb-minicard.m2 { left: 12%; top: 44%; transform: rotate(-2deg); }
+.pb-minicard.m3 { left: 44%; top: 42%; transform: rotate(3deg); }
+.pb-finishedcover { position: absolute; left: 20%; top: -9%; width: 55%; transform: rotate(5deg); z-index: 2; }
+.pb-darkchip {
+  position: absolute; right: -6%; bottom: 8%; z-index: 3; min-width: 22%; padding: 12px 10px; border-radius: 14px; transform: rotate(4deg);
+  background: #3a3a3a; color: #fff; font-size: 18px; font-weight: 600;
+}
+.pb-pilecap { margin-top: 12px; text-align: center; font-size: 26px; font-weight: 400; }
+
+/* ---------- Library: bento ---------- */
+.pb-seg button { padding: 0 2px; font-size: 14px; }
+.pb-bento { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; }
+.pb-bentocol { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.pb-bentostack { position: relative; height: 190px; border: 0; background: none; padding: 0; cursor: pointer; }
+.pb-bs { position: absolute; width: 46%; }
+.pb-bs:nth-child(1) { left: 2%; top: 12%; transform: rotate(-6deg); z-index: 1; }
+.pb-bs:nth-child(2) { left: 24%; top: 0; transform: rotate(-2deg); z-index: 2; }
+.pb-bs:nth-child(3) { left: 46%; top: 8%; transform: rotate(3deg); z-index: 3; }
+.pb-bentocover { border: 0; padding: 0; background: none; cursor: pointer; display: block; }
+.pb-bentocover .pb-thumb.fill { border-radius: 26px; border-width: 4px; }
+.pb-bentonote {
+  display: flex; flex-direction: column; gap: 8px; padding: 18px; border: 0; border-radius: 24px; text-align: left;
+  background: var(--pb-card); color: var(--pb-ink); cursor: pointer; font: inherit;
+}
+.pb-bq { font-size: 21px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+.pb-bentopct {
+  display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; min-height: 150px; padding: 18px; border: 0; border-radius: 24px;
+  background: var(--pb-ac); color: #111; text-align: left; cursor: pointer; font: inherit;
+}
+.pb-bpct { font-size: 56px; line-height: 1; }

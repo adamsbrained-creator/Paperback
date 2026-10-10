@@ -16,3 +16,18 @@ export const DEFAULT_NAV_STYLE: NavStyle = 'bar';
 export function parseNavStyle(value: unknown): NavStyle {
   return NAV_STYLES.some((s) => s.id === value) ? (value as NavStyle) : DEFAULT_NAV_STYLE;
 }
+
+// ---- Home layout -------------------------------------------------------------------------
+
+export type HomeStyle = 'classic' | 'pile';
+
+export const HOME_STYLES: { id: HomeStyle; label: string; note: string }[] = [
+  { id: 'classic', label: 'Classic', note: 'Continue reading, pinned books, today and streak' },
+  { id: 'pile', label: 'Pile', note: 'A pile of your covers, your latest note, and shelves' },
+];
+
+export const DEFAULT_HOME_STYLE: HomeStyle = 'classic';
+
+export function parseHomeStyle(value: unknown): HomeStyle {
+  return HOME_STYLES.some((s) => s.id === value) ? (value as HomeStyle) : DEFAULT_HOME_STYLE;
+}
