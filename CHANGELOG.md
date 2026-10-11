@@ -2,6 +2,13 @@
 
 Newest first. Each entry says where to look on the phone.
 
+## Discover looks like Paperback
+- Menu → Discover → pick Project Gutenberg (or any catalog): the page now starts with a serif **Discover**
+  title and a Home button, the toolbar buttons are round chips, the search field is a pill, catalog
+  entries are soft rounded cards and book covers are rounded with a soft shadow.
+- Everything it does (browse, search, download into your library) is still Readest's.
+- Newsreader (the serif font) is now available in the whole app, not only in the Paperback screens.
+
 ## Library list now belongs to Paperback
 - Paperback keeps its own saved copy of your book list (`paperback.catalog.v1`), so Home, Library and
   Stats show instantly at launch instead of waiting for Readest to load. Tapping a book in the first

@@ -141,3 +141,66 @@
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
   z-index: -1;
 }
+
+/* ---------- Discover (the catalog browser) in the Paperback look ----------
+   Uses the app theme's own colours so it needs nothing from the Paperback screens' stylesheet. */
+.pb-opds .pb-opdshead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px 4px;
+}
+.pb-opds .pb-opdstitle {
+  margin: 0;
+  font-family: var(--font-newsreader), 'Newsreader', Georgia, serif;
+  font-size: 38px;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+.pb-opds .pb-opdsround {
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 22px;
+  background: var(--color-base-300);
+  color: var(--color-base-content);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* catalog toolbar: round chips and a pill search field */
+.pb-opds .btn-ghost.btn-sm {
+  width: 40px;
+  min-height: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 9999px;
+  background: var(--color-base-300);
+}
+.pb-opds input[type='search'],
+.pb-opds input[type='text'] {
+  border: 0;
+  border-radius: 9999px;
+  background: var(--color-base-300);
+}
+
+/* catalog entries: soft cards; books: rounded covers */
+.pb-opds .card.bg-base-100 {
+  border: 0;
+  border-radius: 22px;
+  background: var(--color-base-300);
+  box-shadow: none;
+}
+.pb-opds .card figure {
+  border-radius: 14px;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.14);
+}
+.pb-opds .card-title,
+.pb-opds .card h3 {
+  font-weight: 500;
+}
+.pb-opds .btn-primary {
+  border-radius: 9999px;
+  color: #111;
+}

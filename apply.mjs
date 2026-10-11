@@ -182,14 +182,21 @@ edit(layoutFile, {
   anchor: "import '../styles/globals.css';",
   replace: `import '../styles/globals.css';
 import '../styles/paperback-global.css';
-import { Outfit } from 'next/font/google';
+import { Newsreader, Outfit } from 'next/font/google';
 
-// next/font self-hosts Outfit at build time, so it also works offline.
+// next/font self-hosts the fonts at build time, so they also work offline.
 const outfit = Outfit({
   subsets: ['latin'],
   weight: ['300', '400', '500', '600'],
   display: 'swap',
   variable: '--font-outfit',
+});
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  weight: ['400', '500'],
+  style: ['normal', 'italic'],
+  display: 'swap',
+  variable: '--font-newsreader',
 });`,
 });
 edit(layoutFile, {
@@ -197,7 +204,7 @@ edit(layoutFile, {
   marker: 'outfit.variable',
   anchor: "className={process.env['NEXT_PUBLIC_APP_PLATFORM'] === 'tauri' ? 'edge-to-edge' : ''}",
   replace:
-    "className={`${outfit.variable} ${process.env['NEXT_PUBLIC_APP_PLATFORM'] === 'tauri' ? 'edge-to-edge' : ''}`}",
+    "className={`${outfit.variable} ${newsreader.variable} ${process.env['NEXT_PUBLIC_APP_PLATFORM'] === 'tauri' ? 'edge-to-edge' : ''}`}",
 });
 edit('apps/readest-app/src/styles/globals.css', {
   what: 'font-sans → Outfit first',
@@ -318,6 +325,28 @@ edit('apps/readest-app/src/app/reader/components/footerbar/NavigationBar.tsx', {
   anchor: "'not-eink:bg-base-200 eink:bg-base-100 z-30 mt-auto flex w-full justify-between px-8 py-4',",
   replace:
     "'reader-nav-dock not-eink:bg-base-200 eink:bg-base-100 z-30 mt-auto flex w-full justify-between px-8 py-4',",
+});
+
+// Discover (the OPDS browser): Paperback header + a class the stylesheet can hang the new look on.
+const opdsPage = 'apps/readest-app/src/app/opds/page.tsx';
+edit(opdsPage, {
+  what: 'import the Paperback header for Discover',
+  marker: 'PaperbackOpdsHeader',
+  anchor: "import { Navigation } from './components/Navigation';",
+  replace:
+    "import { Navigation } from './components/Navigation';\nimport PaperbackOpdsHeader from '@/components/paperback/PaperbackOpdsHeader';",
+});
+edit(opdsPage, {
+  what: 'show the Paperback header above the catalog toolbar',
+  marker: '<PaperbackOpdsHeader />',
+  anchor: '        <Navigation\n',
+  replace: '        <PaperbackOpdsHeader />\n        <Navigation\n',
+});
+edit(opdsPage, {
+  what: 'mark the Discover page for styling',
+  marker: "'pb-opds ",
+  anchor: "'bg-base-100 flex h-screen select-none flex-col',",
+  replace: "'pb-opds bg-base-100 flex h-screen select-none flex-col',",
 });
 
 // No analytics: an empty PostHog key makes the app skip it entirely.
