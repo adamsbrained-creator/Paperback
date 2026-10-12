@@ -31,7 +31,7 @@ export default function BookDetailsPage() {
 
   if (!book) {
     return (
-      <Shell title='Book Details'>
+      <Shell title='Book Details' pageHeader>
         <div className='pb-empty'>{libraryLoaded && hash ? 'This book is not in your library.' : 'Loading…'}</div>
       </Shell>
     );
@@ -43,7 +43,7 @@ export default function BookDetailsPage() {
   const started = progressFraction(book) > 0;
 
   return (
-    <Shell title='Book Details'>
+    <Shell title='Book Details' pageHeader>
       <div className='pb-stack'>
         <div style={{ width: 168, margin: '4px auto 8px' }}>
           <Thumb md5={book.hash} book={book} size='fill' />

@@ -24,7 +24,7 @@ export default function ReadingPage() {
   );
 
   return (
-    <Shell title='Currently Reading'>
+    <Shell title='Currently Reading' pageHeader>
       <div className='pb-stack'>
         {loaded && books.length === 0 && (
           <div className='pb-empty'>No books in progress. Open one from Library to start.</div>

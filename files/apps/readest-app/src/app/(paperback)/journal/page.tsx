@@ -2,14 +2,16 @@
 
 import clsx from 'clsx';
 import { useEffect, useMemo, useState } from 'react';
-import { useAppRouter, useThemeStore } from '@/components/paperback/platform';
+import { shareToApps, useAppRouter, useThemeStore } from '@/components/paperback/platform';
 import { usePaperbackData } from '@/components/paperback/usePaperbackData';
 import { usePaperbackOpenBook } from '@/components/paperback/useOpenBook';
 import { useBooknotes } from '@/components/paperback/useBooknotes';
+import SendToScrapbook from '@/components/paperback/SendToScrapbook';
 import { useShelves } from '@/components/paperback/useShelves';
 import { Ring, Thumb } from '@/app/stats/components/ui';
 import { progressFraction, progressPercent, timeLeftLabel } from '@/services/paperback/libraryViews';
 import { newestFirst, filterNotes } from '@/services/paperback/notesViews';
+import { scrapbookHighlight, scrapbookText } from '@/services/paperback/scrapbook';
 import { setJournal } from '@/services/paperback/shelves';
 
 const WEEKDAYS = ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
@@ -28,6 +30,7 @@ export default function JournalPage() {
   const [hash, setHash] = useState<string | null>(null);
   const [draft, setDraft] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+  const [sent, setSent] = useState<string | null>(null);
   useEffect(() => setHash(new URLSearchParams(window.location.search).get('hash')), []);
 
   const book = hash ? booksByHash.get(hash) : undefined;
@@ -50,6 +53,21 @@ export default function JournalPage() {
     setDraft(null);
     setSaved(true);
     setTimeout(() => setSaved(false), 1800);
+  };
+
+  // Opens the share sheet; pick Scrapbook there and it opens its "Save to Scrapbook" screen with this note.
+  const sendToScrapbook = async () => {
+    if (!book) return;
+    const out = scrapbookText(book, text);
+    if (!out) return;
+    const result = await shareToApps(out);
+    setSent(
+      result === 'copied'
+        ? 'Copied. Paste it into Scrapbook.'
+        : result === 'failed'
+          ? 'Could not open the share sheet.'
+          : null,
+    );
   };
 
   return (
@@ -87,17 +105,20 @@ export default function JournalPage() {
                 <Thumb md5={book.hash} book={book} size='fill' />
               </button>
               {cards[0] && (
-                <button
-                  className='pb-jquote'
-                  onClick={() => openBook(book, cards[0]!.cfi)}
-                  style={{ transform: 'rotate(1.4deg)' }}
-                >
-                  <div className='pb-serif pb-jq'>{cards[0].note || cards[0].text}</div>
-                  <div className='pb-label' style={{ marginTop: 8 }}>
-                    {cards[0].page ? `p. ${cards[0].page} · ` : ''}
-                    {cards[0].kind === 'note' ? 'note' : 'highlight'}
-                  </div>
-                </button>
+                <div className='pb-qwrap' style={{ flex: 1, minWidth: 0, marginTop: 14 }}>
+                  <button
+                    className='pb-jquote'
+                    onClick={() => openBook(book, cards[0]!.cfi)}
+                    style={{ width: '100%', marginTop: 0, paddingRight: 52, transform: 'rotate(1.4deg)' }}
+                  >
+                    <div className='pb-serif pb-jq'>{cards[0].note || cards[0].text}</div>
+                    <div className='pb-label' style={{ marginTop: 8 }}>
+                      {cards[0].page ? `p. ${cards[0].page} · ` : ''}
+                      {cards[0].kind === 'note' ? 'note' : 'highlight'}
+                    </div>
+                  </button>
+                  <SendToScrapbook text={scrapbookHighlight(cards[0], book.author)} top={8} />
+                </div>
               )}
             </div>
 
@@ -120,24 +141,31 @@ export default function JournalPage() {
               onChange={(e) => setDraft(e.target.value)}
               rows={6}
             />
+            <button className='pb-btn ghost' disabled={!text.trim()} onClick={sendToScrapbook}>
+              Send to Scrapbook
+            </button>
+            {sent && <div className='pb-note'>{sent}</div>}
 
             {cards.length > 1 && <div className='pb-sec'>More from this book</div>}
             <div className='pb-stack'>
               {cards.slice(1).map((c, i) => (
-                <button
-                  key={c.key}
-                  className={c.kind === 'highlight' ? 'pb-qcard' : 'pb-qcard plain'}
-                  style={{
-                    transform: `rotate(${i % 2 === 0 ? -0.6 : 0.6}deg)`,
-                    ...(c.kind === 'highlight' ? { background: c.color } : {}),
-                  }}
-                  onClick={() => openBook(book, c.cfi)}
-                >
-                  <div className='pb-quote small'>{c.note || c.text}</div>
-                  <div className='pb-label' style={{ marginTop: 6, color: 'inherit', opacity: 0.65 }}>
-                    {c.page ? `p. ${c.page}` : ''}
-                  </div>
-                </button>
+                <div key={c.key} className='pb-qwrap'>
+                  <button
+                    className={c.kind === 'highlight' ? 'pb-qcard' : 'pb-qcard plain'}
+                    style={{
+                      paddingRight: 56,
+                      transform: `rotate(${i % 2 === 0 ? -0.6 : 0.6}deg)`,
+                      ...(c.kind === 'highlight' ? { background: c.color } : {}),
+                    }}
+                    onClick={() => openBook(book, c.cfi)}
+                  >
+                    <div className='pb-quote small'>{c.note || c.text}</div>
+                    <div className='pb-label' style={{ marginTop: 6, color: 'inherit', opacity: 0.65 }}>
+                      {c.page ? `p. ${c.page}` : ''}
+                    </div>
+                  </button>
+                  <SendToScrapbook text={scrapbookHighlight(c, book.author)} />
+                </div>
               ))}
               {cards.length > 0 && (
                 <button className='pb-btn ghost' onClick={() => router.push(`/notes?book=${book.hash}`)}>

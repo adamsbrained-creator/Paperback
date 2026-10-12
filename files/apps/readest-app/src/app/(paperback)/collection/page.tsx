@@ -35,7 +35,7 @@ export default function CollectionPage() {
 
   if (!col) {
     return (
-      <Shell title='Collection'>
+      <Shell title='Collection' pageHeader>
         <div className='pb-empty'>{ready && libraryLoaded && id ? 'This collection no longer exists.' : 'Loading…'}</div>
       </Shell>
     );
@@ -43,7 +43,7 @@ export default function CollectionPage() {
   const manual = col.kind === 'manual';
 
   return (
-    <Shell title={col.name}>
+    <Shell title={col.name} pageHeader>
       <div className='pb-stack'>
         <div className='pb-label' style={{ margin: '0 4px' }}>
           {col.note} · {col.books.length} {col.books.length === 1 ? 'book' : 'books'}

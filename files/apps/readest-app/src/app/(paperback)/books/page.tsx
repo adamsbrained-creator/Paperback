@@ -1,287 +1,177 @@
 'use client';
 
-import clsx from 'clsx';
-import { useEffect, useMemo, useState } from 'react';
-import { SearchIcon } from '@/components/paperback/icons';
-import type { PBook } from '@/services/paperback/library';
-import { useAppRouter } from '@/components/paperback/platform';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import BookSheet from '@/components/paperback/BookSheet';
+import LibraryAll, { type LibraryLayout } from '@/components/paperback/LibraryAll';
+import LibraryEmpty from '@/components/paperback/LibraryEmpty';
+import LibraryShelves from '@/components/paperback/LibraryShelves';
+import PageTop from '@/components/paperback/PageTop';
+import { Toast, useAppRouter } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
-import AppHeader from '@/components/paperback/AppHeader';
-import BentoView from '@/components/paperback/BentoView';
-import BookRow from '@/components/paperback/BookRow';
-import { useBooknotes } from '@/components/paperback/useBooknotes';
-import { useLongPress } from '@/components/paperback/useLongPress';
+import { useImportBooks } from '@/components/paperback/useImportBooks';
+import { useLibraryActions } from '@/components/paperback/useLibraryActions';
 import { usePaperbackData } from '@/components/paperback/usePaperbackData';
 import { usePaperbackOpenBook } from '@/components/paperback/useOpenBook';
-import { Thumb } from '@/app/stats/components/ui';
+import { useShelves } from '@/components/paperback/useShelves';
+import { liveBooks } from '@/services/paperback/libraryViews';
+import type { PBook } from '@/services/paperback/library';
 import {
-  filterLibrary,
-  shelfSections,
-  sortRecent,
-  statusLabel,
-  type BookStatus,
-  type LibraryFilter,
-} from '@/services/paperback/libraryViews';
+  bookCountLabel,
+  filterBooks,
+  parseGridFilter,
+  parseSort,
+  sortBooks,
+  type GridFilter,
+  type SortId,
+} from '@/services/paperback/libraryShelves';
 
-type View = 'shelf' | 'grid' | 'list' | 'stacks' | 'bento';
-const VIEW_KEY = 'paperback.library.view';
-const VIEWS: { id: View; label: string }[] = [
-  { id: 'shelf', label: 'Shelf' },
-  { id: 'grid', label: 'Grid' },
-  { id: 'list', label: 'List' },
-  { id: 'stacks', label: 'Stacks' },
-  { id: 'bento', label: 'Bento' },
-];
-const FILTERS: { id: LibraryFilter; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'reading', label: 'Reading' },
-  { id: 'finished', label: 'Finished' },
-  { id: 'want', label: 'Want to read' },
-];
-const SHELVES: { id: BookStatus; label: string }[] = [
-  { id: 'reading', label: 'Reading' },
-  { id: 'finished', label: 'Finished' },
-  { id: 'want', label: 'Want to read' },
-];
-const SHELF_HEIGHTS = [150, 126, 138, 118, 144];
-const PAGE = 60;
-const SHELF_MAX = 12;
+type View = 'shelves' | 'all';
 
-/** Tap opens the book; press and hold opens its details. */
-function PressableCover({
-  book,
-  onOpen,
-  onDetails,
-  children,
-  className,
-  style,
-}: {
-  book: PBook;
-  onOpen: (b: PBook) => void;
-  onDetails: (b: PBook) => void;
-  children: React.ReactNode;
-  className?: string;
-  style?: React.CSSProperties;
-}) {
-  const handlers = useLongPress(
-    () => onOpen(book),
-    () => onDetails(book),
-  );
-  return (
-    <button className={className} style={style} aria-label={`Open ${book.title}`} {...handlers}>
-      {children}
-    </button>
-  );
+const SORT_KEY = 'paperback.library.sort';
+const LAYOUT_KEY = 'paperback.library.layout';
+
+/** Which screen is showing is kept in the address (?view=all&filter=reading&q=…), so Back works. */
+function readUrl(): { view: View; filter: GridFilter; query: string } {
+  const q = new URLSearchParams(window.location.search);
+  return {
+    view: q.get('view') === 'all' ? 'all' : 'shelves',
+    filter: parseGridFilter(q.get('filter')),
+    query: q.get('q') ?? '',
+  };
 }
 
-export default function BooksPage() {
+function urlFor(view: View, filter: GridFilter, query: string): string {
+  if (view === 'shelves') return '/books';
+  const p = new URLSearchParams({ view: 'all' });
+  if (filter !== 'all') p.set('filter', filter);
+  if (query) p.set('q', query);
+  return `/books?${p.toString()}`;
+}
+
+export default function LibraryPage() {
   const router = useAppRouter();
   const openBook = usePaperbackOpenBook();
-  const { library, lastRead, loaded } = usePaperbackData();
-  const [view, setView] = useState<View>('grid');
-  const [filter, setFilter] = useState<LibraryFilter>('all');
+  const { library, lastRead, libraryLoaded } = usePaperbackData();
+  const [shelves, updateShelves] = useShelves();
+  const importer = useImportBooks();
+  const { setFinished, removeBook } = useLibraryActions();
+
+  const [view, setView] = useState<View>('shelves');
+  const [filter, setFilter] = useState<GridFilter>('all');
   const [query, setQuery] = useState('');
-  const [limit, setLimit] = useState(PAGE);
+  const [sort, setSort] = useState<SortId>('recent');
+  const [layout, setLayout] = useState<LibraryLayout>('grid');
+  const [sheetHash, setSheetHash] = useState<string | null>(null);
 
   useEffect(() => {
+    const sync = () => {
+      const s = readUrl();
+      setView(s.view);
+      setFilter(s.filter);
+      setQuery(s.query);
+    };
+    sync();
     try {
-      const v = localStorage.getItem(VIEW_KEY);
-      if (v === 'shelf' || v === 'grid' || v === 'list' || v === 'stacks' || v === 'bento') setView(v);
+      setSort(parseSort(localStorage.getItem(SORT_KEY)));
+      setLayout(localStorage.getItem(LAYOUT_KEY) === 'list' ? 'list' : 'grid');
     } catch {
-      /* keep default */
+      /* keep defaults */
     }
+    window.addEventListener('popstate', sync);
+    return () => window.removeEventListener('popstate', sync);
   }, []);
-  const pickView = (v: View) => {
-    setView(v);
+
+  const live = useMemo(() => liveBooks(library), [library]);
+  const shown = useMemo(
+    () => sortBooks(filterBooks(live, filter, shelves.favorites, query), sort, lastRead),
+    [live, filter, shelves.favorites, query, sort, lastRead],
+  );
+  const sheetBook: PBook | null = useMemo(
+    () => (sheetHash ? (live.find((b) => b.hash === sheetHash) ?? null) : null),
+    [live, sheetHash],
+  );
+
+  const open = useCallback((b: PBook) => void openBook(b), [openBook]);
+  const hold = useCallback((b: PBook) => setSheetHash(b.hash), []);
+
+  const seeAll = (f: GridFilter) => {
+    window.history.pushState({}, '', urlFor('all', f, ''));
+    setView('all');
+    setFilter(f);
+    setQuery('');
+  };
+  const pickFilter = (f: GridFilter) => {
+    window.history.replaceState({}, '', urlFor('all', f, query));
+    setFilter(f);
+  };
+  const clearQuery = () => {
+    window.history.replaceState({}, '', urlFor('all', filter, ''));
+    setQuery('');
+  };
+  const pickSort = (s: SortId) => {
+    setSort(s);
     try {
-      localStorage.setItem(VIEW_KEY, v);
+      localStorage.setItem(SORT_KEY, s);
+    } catch {
+      /* not persisted */
+    }
+  };
+  const pickLayout = (l: LibraryLayout) => {
+    setLayout(l);
+    try {
+      localStorage.setItem(LAYOUT_KEY, l);
     } catch {
       /* not persisted */
     }
   };
 
-  const all = useMemo(() => sortRecent(library, lastRead), [library, lastRead]);
-  const shown = useMemo(() => filterLibrary(all, filter, query), [all, filter, query]);
-  const sections = useMemo(() => shelfSections(shown), [shown]);
-  const details = (b: PBook) => router.push(`/book?hash=${b.hash}`);
-  const bentoBooks = useMemo(() => shown.slice(0, 8), [shown]);
-  const bentoNotes = useBooknotes(bentoBooks, view === 'bento');
-  const shelfCount = SHELVES.filter((s) => sections[s.id].length > 0).length;
+  const empty = libraryLoaded && live.length === 0;
+  const chip = importer.importing ? 'Importing…' : live.length > 0 ? bookCountLabel(live.length) : undefined;
 
   return (
-    <Shell title='Library' tab='library' header={<AppHeader right='add' />}>
-      <div className='pb-libhead'>
-        <h1 className='pb-bigtitle pb-serif'>Library</h1>
-        <span className='pb-label'>
-          {all.length} {all.length === 1 ? 'book' : 'books'}
-          {(view === 'shelf' || view === 'stacks') && shelfCount ? ` · ${shelfCount} ${shelfCount === 1 ? 'shelf' : 'shelves'}` : ''}
-        </span>
-      </div>
+    <Shell title='Library' header={<PageTop label='Library' chip={chip} />} wrapClassName='pb-set-wrap'>
+      {empty ? (
+        <LibraryEmpty onImport={importer.start} onDiscover={() => router.push('/discover')} importing={importer.importing} />
+      ) : view === 'all' ? (
+        <LibraryAll
+          books={shown}
+          filter={filter}
+          onFilter={pickFilter}
+          sort={sort}
+          onSort={pickSort}
+          layout={layout}
+          onLayout={pickLayout}
+          query={query}
+          onClearQuery={clearQuery}
+          onImport={importer.start}
+          importing={importer.importing}
+          onOpen={open}
+          onHold={hold}
+        />
+      ) : (
+        <LibraryShelves
+          books={live}
+          lastRead={lastRead}
+          favorites={shelves.favorites}
+          onOpen={open}
+          onHold={hold}
+          onSeeAll={seeAll}
+        />
+      )}
 
-      <div className='pb-stack'>
-        <div className='pb-search'>
-          <SearchIcon size={22} />
-          <input
-            value={query}
-            onChange={(e) => (setQuery(e.target.value), setLimit(PAGE))}
-            placeholder='Search library'
-            spellCheck={false}
-          />
-          {query && (
-            <button className='pb-clear' onClick={() => setQuery('')}>
-              Clear
-            </button>
-          )}
-        </div>
-
-        <div className='pb-seg' role='tablist' aria-label='View'>
-          {VIEWS.map((v) => (
-            <button
-              key={v.id}
-              role='tab'
-              aria-selected={view === v.id}
-              className={clsx(view === v.id && 'on')}
-              onClick={() => pickView(v.id)}
-            >
-              {v.label}
-            </button>
-          ))}
-        </div>
-
-        <div className='pb-pills pb-scrollx'>
-          {FILTERS.map((f) => (
-            <button
-              key={f.id}
-              className={clsx('pb-pill', filter === f.id && 'on')}
-              onClick={() => (setFilter(f.id), setLimit(PAGE))}
-            >
-              {f.label}
-            </button>
-          ))}
-        </div>
-
-        {loaded && shown.length === 0 && (
-          <div className='pb-empty'>
-            {all.length === 0 ? 'Your library is empty. Tap + to add books.' : 'No books match.'}
-          </div>
-        )}
-
-        {view === 'grid' && shown.length > 0 && (
-          <>
-            <div className='pb-sec' style={{ textTransform: 'none', letterSpacing: 0, fontSize: 15 }}>
-              {query || filter !== 'all' ? `${shown.length} found` : 'Recently read'}
-            </div>
-            <div className='pb-bookgrid'>
-              {shown.slice(0, limit).map((b) => (
-                <PressableCover key={b.hash} className='pb-gridcell' book={b} onOpen={openBook} onDetails={details}>
-                  <Thumb md5={b.hash} book={b} size='fill' />
-                  <div className='pb-cell-title pb-ellipsis'>{b.title}</div>
-                  <div className='pb-label'>{statusLabel(b)}</div>
-                </PressableCover>
-              ))}
-            </div>
-          </>
-        )}
-
-        {view === 'list' &&
-          shown.slice(0, limit).map((b) => (
-            <BookRow
-              key={b.hash}
-              book={b}
-              sub={`${b.author ? `${b.author} · ` : ''}${statusLabel(b)}`}
-              onOpen={() => openBook(b)}
-              trailing={
-                <button className='pb-iconbtn' aria-label={`Details of ${b.title}`} onClick={() => details(b)}>
-                  ⓘ
-                </button>
-              }
-            />
-          ))}
-
-        {view === 'shelf' &&
-          SHELVES.filter((s) => sections[s.id].length > 0).map((s) => {
-            const list = sections[s.id];
-            return (
-              <div key={s.id} className='pb-shelfblock'>
-                <div className='pb-shelfhead'>
-                  <h2 className='pb-serif'>{s.label}</h2>
-                  <span className='pb-label'>{list.length}</span>
-                </div>
-                <div className='pb-shelf'>
-                  {list.slice(0, SHELF_MAX).map((b, i) => {
-                    const h = SHELF_HEIGHTS[i % SHELF_HEIGHTS.length]!;
-                    return (
-                      <PressableCover
-                        key={b.hash}
-                        className='pb-shelfbook'
-                        style={{ height: h, width: Math.round((h * 2) / 3) }}
-                        book={b}
-                        onOpen={openBook}
-                        onDetails={details}
-                      >
-                        <Thumb md5={b.hash} book={b} size='fill' />
-                      </PressableCover>
-                    );
-                  })}
-                  {list.length > SHELF_MAX && (
-                    <button
-                      className='pb-shelfmore'
-                      onClick={() => (setFilter(s.id === 'want' ? 'want' : s.id), pickView('grid'))}
-                    >
-                      +{list.length - SHELF_MAX}
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-
-        {view === 'bento' && shown.length > 0 && (
-          <BentoView
-            books={shown}
-            notes={bentoNotes}
-            open={openBook}
-            onStack={() => pickView('grid')}
-            onNotes={() => router.push('/notes')}
-          />
-        )}
-
-        {view === 'stacks' &&
-          SHELVES.filter((s) => sections[s.id].length > 0).map((s) => {
-            const list = sections[s.id];
-            return (
-              <button
-                key={s.id}
-                className='pb-stackblock'
-                aria-label={`Show ${s.label}`}
-                onClick={() => (setFilter(s.id), pickView('grid'))}
-              >
-                <div className='pb-fanrow'>
-                  {list.slice(0, 3).map((b, i) => (
-                    <div
-                      key={b.hash}
-                      className='pb-fancover'
-                      style={{ transform: `rotate(${[-2, 1, -1][i] ?? 0}deg)`, zIndex: i + 1 }}
-                    >
-                      <Thumb md5={b.hash} book={b} size='fill' />
-                    </div>
-                  ))}
-                  {list.length > 3 && <div className='pb-fanmore'>+{list.length - 3}</div>}
-                </div>
-                <h2 className='pb-serif'>{s.label}</h2>
-                <div className='pb-label'>
-                  {list.length} {list.length === 1 ? 'book' : 'books'}
-                </div>
-              </button>
-            );
-          })}
-
-        {(view === 'grid' || view === 'list') && shown.length > limit && (
-          <button className='pb-btn ghost' onClick={() => setLimit(limit + PAGE)}>
-            Show more
-          </button>
-        )}
-      </div>
+      {sheetBook ? (
+        <BookSheet
+          book={sheetBook}
+          shelves={shelves}
+          update={updateShelves}
+          onClose={() => setSheetHash(null)}
+          onOpen={open}
+          onDetails={(b) => router.push(`/book?hash=${b.hash}`)}
+          onSetFinished={setFinished}
+          onRemove={removeBook}
+        />
+      ) : null}
+      <Toast />
     </Shell>
   );
 }

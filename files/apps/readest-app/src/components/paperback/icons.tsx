@@ -51,10 +51,24 @@ const DEFS = {
   dots: { d: 'M5 12h.01 M12 12h.01 M19 12h.01' },
   library: { d: 'M5 4v16 M10 4v16 M14 5.5l4.5 14' },
   reader: { d: 'M5 4h11a3 3 0 013 3v13H8a3 3 0 01-3-3z M5 17a3 3 0 013-3h11' },
+  // From the Library designs.
+  pin: { d: 'M9 4h6l-1 5 3 3v2H7v-2l3-3z M12 14v6' },
+  heart: { d: 'M12 20s-7-4.3-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.7-7 10-7 10z' },
+  folderPlus: {
+    d: 'M4 7a2 2 0 012-2h4l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2z M12 10.5v5 M9.5 13h5',
+  },
+  checkCircle: { d: 'M12 3.5a8.5 8.5 0 1 0 0 17 8.5 8.5 0 1 0 0-17z M8 12.5l3 3 5-6' },
+  checkSmall: { d: 'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18z M8 12.5l3 3 5-6' },
+  trash: { d: 'M5 7h14 M10 7V5h4v2 M7 7l1 12h8l1-12 M10 11v5 M14 11v5' },
+  importFile: { d: 'M12 4v11 M7.5 10.5L12 15l4.5-4.5 M5 19h14' },
+  gridView: { d: 'M5.5 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5z M15 4h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5z M5.5 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5z M15 13.5h3.5a1.5 1.5 0 0 1 1.5 1.5v3.5a1.5 1.5 0 0 1 -1.5 1.5h-3.5a1.5 1.5 0 0 1 -1.5 -1.5v-3.5a1.5 1.5 0 0 1 1.5 -1.5z' },
+  listView: { d: 'M4 6h16 M4 12h16 M4 18h16' },
+  chevronDown: { d: 'M6 9l6 6 6-6' },
   // Not in the design file; drawn to the same grid and stroke so they sit with the set.
   plus: { d: 'M12 5v14 M5 12h14' },
   caretRight: { d: 'M9 5l7 7-7 7' },
   caretLeft: { d: 'M15 5l-7 7 7 7' },
+  share: { d: 'M12 15V4 M8 8l4-4 4 4 M5 13v6h14v-6' },
 } satisfies Record<string, Def>;
 
 export type IconName = keyof typeof DEFS;
@@ -110,6 +124,7 @@ export const SearchIcon = make('search');
 export const TranslateIcon = make('translate');
 export const HighlightIcon = make('highlight');
 export const NoteIcon = make('note');
+export const ShareIcon = make('share');
 export const CopyIcon = make('copy');
 export const AppStyleIcon = make('appStyle');
 export const GoalsIcon = make('goals');
@@ -122,6 +137,16 @@ export const CloseIcon = make('close');
 export const DotsIcon = make('dots');
 export const LibraryIcon = make('library');
 export const ReaderIcon = make('reader');
+export const PinIcon = make('pin');
+export const HeartIcon = make('heart');
+export const FolderPlusIcon = make('folderPlus');
+export const CheckCircleIcon = make('checkCircle');
+export const CheckSmallIcon = make('checkSmall');
+export const TrashIcon = make('trash');
+export const ImportFileIcon = make('importFile');
+export const GridViewIcon = make('gridView');
+export const ListViewIcon = make('listView');
+export const ChevronDownIcon = make('chevronDown');
 export const PlusIcon = make('plus');
 export const CaretRightIcon = make('caretRight');
 export const CaretLeftIcon = make('caretLeft');

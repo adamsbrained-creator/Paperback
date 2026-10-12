@@ -43,11 +43,10 @@ export function LogoTile({
   );
 }
 
-/** Mark + "paperback" wordmark side by side. */
-export function Wordmark({ markSize = 28 }: { markSize?: number }) {
+/** The "paperback" wordmark (text only; the mark lives on the app icon and About). */
+export function Wordmark() {
   return (
     <div className='pb-wordmark'>
-      <LogoMark size={markSize} />
       <span>paperback</span>
     </div>
   );

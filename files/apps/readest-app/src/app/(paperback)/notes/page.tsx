@@ -5,9 +5,11 @@ import Shell from '@/components/paperback/Shell';
 import { usePaperbackData } from '@/components/paperback/usePaperbackData';
 import { usePaperbackOpenBook } from '@/components/paperback/useOpenBook';
 import { useBooknotes } from '@/components/paperback/useBooknotes';
+import SendToScrapbook from '@/components/paperback/SendToScrapbook';
 import { Pills } from '@/app/stats/components/ui';
 import { liveBooks } from '@/services/paperback/libraryViews';
 import { filterNotes, newestFirst, type NoteFilter } from '@/services/paperback/notesViews';
+import { scrapbookHighlight } from '@/services/paperback/scrapbook';
 
 const FILTERS: { id: NoteFilter; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -36,7 +38,7 @@ export default function NotesPage() {
   );
 
   return (
-    <Shell title='Notes & Highlights'>
+    <Shell title='Notes & Highlights' pageHeader>
       <div className='pb-stack'>
         <Pills options={FILTERS} value={filter} onChange={(f) => (setFilter(f), setLimit(PAGE))} />
         {bookFilter && (
@@ -57,31 +59,34 @@ export default function NotesPage() {
           const tilt = i % 2 === 0 ? -0.6 : 0.6;
           const where = `${r.bookTitle}${r.page ? ` · p. ${r.page}` : ''}`;
           return (
-            <button
-              key={r.key}
-              className={r.kind === 'highlight' ? 'pb-qcard' : 'pb-qcard plain'}
-              style={{
-                transform: `rotate(${tilt}deg)`,
-                ...(r.kind === 'highlight' ? { background: r.color } : {}),
-              }}
-              disabled={!book}
-              onClick={() => book && openBook(book, r.cfi)}
-            >
-              {r.kind === 'highlight' ? (
-                <div className='pb-quote'>{r.text}</div>
-              ) : (
-                <>
-                  <div className='pb-quote small'>{r.note}</div>
-                  <div className='pb-pk pb-label' style={{ marginTop: 6 }}>
-                    my note
-                  </div>
-                  {r.text && <div className='pb-label pb-clamp2'>“{r.text}”</div>}
-                </>
-              )}
-              <div className='pb-label pb-ellipsis' style={{ marginTop: 8, color: 'inherit', opacity: 0.65 }}>
-                {where}
-              </div>
-            </button>
+            <div key={r.key} className='pb-qwrap'>
+              <button
+                className={r.kind === 'highlight' ? 'pb-qcard' : 'pb-qcard plain'}
+                style={{
+                  paddingRight: 56,
+                  transform: `rotate(${tilt}deg)`,
+                  ...(r.kind === 'highlight' ? { background: r.color } : {}),
+                }}
+                disabled={!book}
+                onClick={() => book && openBook(book, r.cfi)}
+              >
+                {r.kind === 'highlight' ? (
+                  <div className='pb-quote'>{r.text}</div>
+                ) : (
+                  <>
+                    <div className='pb-quote small'>{r.note}</div>
+                    <div className='pb-pk pb-label' style={{ marginTop: 6 }}>
+                      my note
+                    </div>
+                    {r.text && <div className='pb-label pb-clamp2'>“{r.text}”</div>}
+                  </>
+                )}
+                <div className='pb-label pb-ellipsis' style={{ marginTop: 8, color: 'inherit', opacity: 0.65 }}>
+                  {where}
+                </div>
+              </button>
+              <SendToScrapbook text={scrapbookHighlight(r, book?.author)} />
+            </div>
           );
         })}
         {list.length > limit && (

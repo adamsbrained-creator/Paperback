@@ -12,7 +12,8 @@ import { useHeaderSize } from './useHeaderSize';
  * The standard top of a Paperback screen: menu button · "paperback" · search, then the screen's
  * name underneath, in the size chosen in Settings → App style → Header size. Also brings the round
  * menu button (bottom right) and its pop-up, the same as Settings. Screens get it with
- * `<Shell title='…' pageHeader>`; Home, Stats and Library have their own headers.
+ * `<Shell title='…' pageHeader>`; Home and Stats have their own headers. The Library uses it too (with the
+ * book count as `chip`).
  */
 export default function PageTop({ label, chip }: { label: string; chip?: string }) {
   const router = useAppRouter();

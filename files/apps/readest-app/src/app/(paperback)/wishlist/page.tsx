@@ -18,7 +18,7 @@ export default function WishlistPage() {
   };
 
   return (
-    <Shell title='Wishlist'>
+    <Shell title='Wishlist' pageHeader>
       <div className='pb-stack'>
         <div className='pb-card pb-stack'>
           <input

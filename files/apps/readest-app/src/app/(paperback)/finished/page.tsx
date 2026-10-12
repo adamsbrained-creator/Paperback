@@ -22,7 +22,7 @@ export default function FinishedPage() {
   );
 
   return (
-    <Shell title='Finished'>
+    <Shell title='Finished' pageHeader>
       <div className='pb-stack'>
         <Pills
           options={years.map((y) => ({ id: String(y), label: String(y) }))}

@@ -18,7 +18,7 @@ export default function FavoritesPage() {
   );
 
   return (
-    <Shell title='Favorites'>
+    <Shell title='Favorites' pageHeader>
       <div className='pb-stack'>
         {loaded && ready && books.length === 0 && (
           <div className='pb-empty'>No favorites yet. Tap ♥ on a book&apos;s details page.</div>

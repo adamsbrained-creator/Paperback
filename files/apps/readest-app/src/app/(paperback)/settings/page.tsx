@@ -12,7 +12,7 @@ import {
   StatsIcon,
   ThemeIcon,
 } from '@/components/paperback/icons';
-import { navigateToLibrary, useAppRouter, useThemeStore } from '@/components/paperback/platform';
+import { SettingsDialog, useAppRouter, useSettingsStore, useThemeStore } from '@/components/paperback/platform';
 import MenuFab from '@/components/paperback/MenuFab';
 import MenuSheet from '@/components/paperback/MenuSheet';
 import PageHeader from '@/components/paperback/PageHeader';
@@ -100,6 +100,7 @@ export default function SettingsPage() {
   const router = useAppRouter();
   const { themeMode } = useThemeStore();
   const [headerSize] = useHeaderSize();
+  const { isSettingsDialogOpen, setSettingsDialogOpen } = useSettingsStore();
   const [menuOpen, setMenuOpen] = useState(false);
   const appearance = themeMode === 'light' ? 'Light' : themeMode === 'dark' ? 'Dark' : 'Match system';
   const goalMinutes = useGoalMinutes();
@@ -107,8 +108,8 @@ export default function SettingsPage() {
   const reading: RowDef[] = [
     { icon: GoalsIcon, title: 'Reading goals', value: `${goalMinutes} min a day`, go: () => router.push('/stats?tab=goals') },
     { icon: StatsIcon, title: 'Reading stats', go: () => router.push('/stats') },
-    // Reader font, layout and sync live in Readest's own settings, reached through its library.
-    { icon: ReaderIcon, title: 'Reader defaults', value: READER_DEFAULTS_VALUE, go: () => navigateToLibrary(router) },
+    // Reader font, layout and more: Readest's own settings window.
+    { icon: ReaderIcon, title: 'Reader defaults', value: READER_DEFAULTS_VALUE, go: () => setSettingsDialogOpen(true) },
   ];
   const look: RowDef[] = [
     { icon: ThemeIcon, title: 'Appearance', value: appearance, go: () => router.push('/appearance') },
@@ -141,6 +142,7 @@ export default function SettingsPage() {
 
       <MenuFab onOpen={() => setMenuOpen(true)} />
       <MenuSheet open={menuOpen} onClose={() => setMenuOpen(false)} />
+      {isSettingsDialogOpen && <SettingsDialog bookKey={''} />}
     </Shell>
   );
 }

@@ -14,7 +14,7 @@ export default function AppearancePage() {
   const [homeStyle, setHomeStyle] = useHomeStyle();
 
   return (
-    <Shell title='Themes'>
+    <Shell title='Appearance' pageHeader>
       <div className='pb-stack'>
         <div className='pb-grid2'>
           {(['light', 'dark'] as const).map((m) => (

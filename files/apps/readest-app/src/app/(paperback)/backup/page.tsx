@@ -2,8 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { useEnv } from '@/components/paperback/platform';
-import { useAppRouter } from '@/components/paperback/platform';
-import { navigateToLibrary } from '@/components/paperback/platform';
+import { BackupWindow, setBackupDialogVisible } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
 import { useShelves } from '@/components/paperback/useShelves';
 import { loadGoals, normalizeGoals, saveGoals } from '@/app/stats/goals';
@@ -15,9 +14,8 @@ import {
   type ParsedBackup,
 } from '@/services/paperback/backup';
 
-/** Backup of Paperback's own data. Books, notes and settings have Readest's backup in Library. */
+/** Backup of Paperback's own data. Books, notes and settings are backed up by Readest's backup window (the last button). */
 export default function BackupPage() {
-  const router = useAppRouter();
   const { appService } = useEnv();
   const [shelves, update] = useShelves();
   const [message, setMessage] = useState<{ text: string; bad?: boolean } | null>(null);
@@ -58,7 +56,7 @@ export default function BackupPage() {
   };
 
   return (
-    <Shell title='Backup'>
+    <Shell title='Backup & restore' pageHeader>
       <div className='pb-stack'>
         <div className='pb-card'>
           <div className='pb-title'>Your Paperback data</div>
@@ -102,11 +100,12 @@ export default function BackupPage() {
 
         <div className='pb-note'>
           This file holds only what Paperback adds. Your books, notes, highlights, reading history and
-          app settings have their own backup in the Library menu.
+          app settings have their own backup.
         </div>
-        <button className='pb-btn ghost' onClick={() => navigateToLibrary(router)}>
-          Open library manager
+        <button className='pb-btn ghost' onClick={() => setBackupDialogVisible(true)}>
+          Back up or restore books and notes
         </button>
+        <BackupWindow onPullLibrary={() => {}} />
       </div>
     </Shell>
   );

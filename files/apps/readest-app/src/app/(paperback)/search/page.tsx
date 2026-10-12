@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import { SearchIcon } from '@/components/paperback/icons';
 import { useAppRouter } from '@/components/paperback/platform';
-import { navigateToLibrary } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
 import { usePaperbackData } from '@/components/paperback/usePaperbackData';
 import { usePaperbackOpenBook } from '@/components/paperback/useOpenBook';
@@ -39,7 +38,7 @@ export default function SearchPage() {
   );
 
   return (
-    <Shell title='Search'>
+    <Shell title='Search' pageHeader>
       <div className='pb-stack'>
         <div className='pb-search'>
           <SearchIcon size={20} />
@@ -106,15 +105,6 @@ export default function SearchPage() {
 
         {q && foundBooks.length === 0 && foundNotes.length === 0 && (
           <div className='pb-empty'>{rows === null && scope !== 'titles' ? 'Searching…' : 'No matches.'}</div>
-        )}
-
-        {q && (
-          <button
-            className='pb-btn ghost'
-            onClick={() => navigateToLibrary(router, `q=${encodeURIComponent(q)}`)}
-          >
-            Search inside book text (Library)
-          </button>
         )}
       </div>
     </Shell>

@@ -12,7 +12,7 @@ export default function GenresPage() {
   const rows = useMemo(() => genreRows(library), [library]);
 
   return (
-    <Shell title='Genres'>
+    <Shell title='Genres' pageHeader>
       <div className='pb-stack'>
         {loaded && rows.length === 0 && (
           <div className='pb-empty'>

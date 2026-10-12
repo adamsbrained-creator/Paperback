@@ -19,7 +19,7 @@ export default function RecentPage() {
   const books = useMemo(() => recentlyRead(library, lastRead, 40), [library, lastRead]);
 
   return (
-    <Shell title='Recently Read'>
+    <Shell title='Recently Read' pageHeader>
       <div className='pb-stack'>
         {loaded && books.length === 0 && <div className='pb-empty'>Nothing read yet.</div>}
         {books.map((b) => (
