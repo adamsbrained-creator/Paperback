@@ -17,3 +17,10 @@ They stay under Readest's license (AGPL-3.0) and say so in their first lines:
 
 - `src/app/opds/components/Navigation.tsx`: Discover's toolbar (new look; same behaviour).
 - `src/app/opds/utils/opdsClose.ts`: closing a catalog returns to Paperback's Discover list.
+- `src/app/page.tsx`: the launch screen (loads the library, opens a file or link handed over by the phone, then Home).
+- `src/app/library/page.tsx`: Readest's old Library address now forwards to Paperback's Library (`/books`).
+
+Readest's own Library screen (the rest of `src/app/library`) is not part of Paperback: `apply.mjs` deletes the files
+that Paperback no longer uses before the app is compiled. What is left in that folder (`BackupWindow`,
+`ShareBookDialog`, `BookContextMenuPopup`, `useBookTransferActions`, `useOpenBook`, `libraryUtils`) is still
+Readest's code, under the same license.

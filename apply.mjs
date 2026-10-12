@@ -100,36 +100,8 @@ edit('apps/readest-app/src/services/statistics/statisticsDb.ts', {
   async getBookByMd5(`,
 });
 
-const settingsMenu = 'apps/readest-app/src/app/library/components/SettingsMenu.tsx';
-edit(settingsMenu, {
-  what: 'import chart icon',
-  marker: 'PiChartBar',
-  anchor: "import { PiUserCircle, PiUserCircleCheck, PiGear } from 'react-icons/pi';",
-  replace: "import { PiUserCircle, PiUserCircleCheck, PiGear, PiChartBar } from 'react-icons/pi';",
-});
-edit(settingsMenu, {
-  what: 'add "Reading Stats" menu item',
-  marker: "router.push('/stats')",
-  anchor: "      <MenuItem label={_('Settings')} Icon={PiGear} onClick={openSettingsDialog} />",
-  replace:
-    "      <MenuItem label='Reading Stats' Icon={PiChartBar} onClick={() => router.push('/stats')} />\n" +
-    "      <MenuItem label={_('Settings')} Icon={PiGear} onClick={openSettingsDialog} />",
-});
+// (Readest's library menu is gone: Paperback has its own Library, menu and settings screens.)
 
-edit(settingsMenu, {
-  what: 'import house icon',
-  marker: 'PiHouse',
-  anchor: "PiChartBar } from 'react-icons/pi';",
-  replace: "PiChartBar, PiHouse } from 'react-icons/pi';",
-});
-edit(settingsMenu, {
-  what: 'add "Paperback Home" menu item',
-  marker: "router.push('/home')",
-  anchor: "      <MenuItem label='Reading Stats'",
-  replace:
-    "      <MenuItem label='Paperback Home' Icon={PiHouse} onClick={() => router.push('/home')} />\n" +
-    "      <MenuItem label='Reading Stats'",
-});
 // Theme: Paperback palette replaces Readest's "Default" theme (light + dark),
 // so the library, reader chrome and dialogs all pick it up.
 const themesFile = 'apps/readest-app/src/styles/themes.ts';
@@ -213,47 +185,8 @@ edit('apps/readest-app/src/styles/globals.css', {
   replace: "--font-sans: var(--font-outfit), 'Inter', ui-sans-serif, system-ui, sans-serif;",
 });
 
-// Cold start: land on Paperback Home when nothing claimed the launch
-// (no opened file, deep link or restored book). Library is still one tap away.
-const rootPage = 'apps/readest-app/src/app/page.tsx';
-edit(rootPage, {
-  what: 'imports for the Home hand-off',
-  marker: 'handedOffToHome',
-  anchor: "import LibraryPage from './library/page';",
-  replace: `import { useLayoutEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useLibraryStore } from '@/store/libraryStore';
-import { isTauriAppPlatform } from '@/services/environment';
-import LibraryPage from './library/page';
-
-// Paperback: once per app session, a cold start with nothing to open lands on Home.
-let handedOffToHome = false;`,
-});
-edit(rootPage, {
-  what: 'hand off to Home after launch checks pass',
-  marker: 'setLeaving',
-  anchor: '  return <LibraryPage />;',
-  replace: `  const router = useRouter();
-  // These gates stay true while an opened file, deep link or restored book owns the launch.
-  const launchBusy = useLibraryStore(
-    (s) => s.checkOpenWithBooks || s.checkLastOpenBooks || s.checkPendingLaunchLink,
-  );
-  const libraryLoaded = useLibraryStore((s) => s.libraryLoaded);
-  const [leaving, setLeaving] = useState(false);
-
-  useLayoutEffect(() => {
-    if (handedOffToHome || launchBusy || !libraryLoaded || !isTauriAppPlatform()) return;
-    handedOffToHome = true;
-    setLeaving(true); // hide the library before it paints
-    router.replace('/home');
-  }, [launchBusy, libraryLoaded, router]);
-
-  return (
-    <div style={{ display: leaving ? 'none' : 'contents' }}>
-      <LibraryPage />
-    </div>
-  );`,
-});
+// Cold start: Paperback's own src/app/page.tsx (a file in files/) loads the library, handles opened files and
+// deep links, then lands on Home. Readest's library page is not part of the app any more.
 
 // tauri.conf.json: app name + no updater artifacts (they need a signing key).
 const tauriConf = 'apps/readest-app/src-tauri/tauri.conf.json';
@@ -388,6 +321,89 @@ edit(opdsPage, {
     }
   }
 }
+
+
+// 3. prune Readest's library screen -------------------------------------------
+// Paperback has its own Library, so Readest's (about 16,000 lines in src/app/library) is not compiled into the app.
+// Only files nothing else needs are deleted: a file is kept when any file outside the pruned folder (or any
+// Paperback-owned file inside it) imports it, directly or through other kept files. Tests of deleted files go too.
+function pruneUnused(pruneRel) {
+  const src = path.join(app, 'src');
+  const pruneRoot = path.join(src, pruneRel);
+  if (!fs.existsSync(pruneRoot)) {
+    log(`  = ${pruneRel}: nothing to prune`);
+    return;
+  }
+  const all = [];
+  (function walk(dir) {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) {
+        if (e.name !== 'node_modules') walk(full);
+      } else if (/\.(ts|tsx)$/.test(e.name)) all.push(full);
+    }
+  })(src);
+  const known = new Set(all);
+  const owned = new Set();
+  (function walk(dir) {
+    if (!fs.existsSync(dir)) return;
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      const full = path.join(dir, e.name);
+      if (e.isDirectory()) walk(full);
+      else owned.add(path.join(app, path.relative(path.join(here, 'files/apps/readest-app'), full)));
+    }
+  })(path.join(here, 'files/apps/readest-app'));
+
+  const exts = ['', '.ts', '.tsx', '/index.ts', '/index.tsx'];
+  const resolve = (from, spec) => {
+    let base;
+    if (spec.startsWith('@/')) base = path.join(src, spec.slice(2));
+    else if (spec.startsWith('.')) base = path.resolve(path.dirname(from), spec);
+    else return null;
+    for (const x of exts) if (known.has(base + x)) return base + x;
+    return null;
+  };
+  const importRe =
+    /(?:import|export)\s[^'"`;]*?from\s*['"]([^'"]+)['"]|import\s*['"]([^'"]+)['"]|import\(\s*['"]([^'"]+)['"]\s*\)|require\(\s*['"]([^'"]+)['"]\s*\)|vi\.(?:mock|importActual)\(\s*['"]([^'"]+)['"]/g;
+  const deps = new Map();
+  for (const f of all) {
+    const text = fs.readFileSync(f, 'utf8');
+    const out = new Set();
+    importRe.lastIndex = 0;
+    let m;
+    while ((m = importRe.exec(text))) {
+      const r = resolve(f, m[1] || m[2] || m[3] || m[4] || m[5]);
+      if (r) out.add(r);
+    }
+    deps.set(f, out);
+  }
+  const inPrune = (f) => f.startsWith(pruneRoot + path.sep);
+  const isTest = (f) => f.includes(`${path.sep}__tests__${path.sep}`) || /\.test\.tsx?$/.test(f);
+  const roots = all.filter((f) => !isTest(f) && (!inPrune(f) || owned.has(f)));
+  const live = new Set(roots);
+  const stack = [...roots];
+  while (stack.length) {
+    for (const d of deps.get(stack.pop()) ?? []) {
+      if (!live.has(d)) {
+        live.add(d);
+        stack.push(d);
+      }
+    }
+  }
+  const dead = all.filter((f) => inPrune(f) && !live.has(f));
+  const deadSet = new Set(dead);
+  const deadTests = all.filter((f) => isTest(f) && [...deps.get(f)].some((d) => deadSet.has(d)));
+  for (const f of [...dead, ...deadTests]) fs.rmSync(f);
+  // Remove folders left empty.
+  (function sweep(dir) {
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) if (e.isDirectory()) sweep(path.join(dir, e.name));
+    if (dir !== pruneRoot && fs.readdirSync(dir).length === 0) fs.rmdirSync(dir);
+  })(pruneRoot);
+  const kept = all.filter((f) => inPrune(f) && live.has(f)).length;
+  log(`  - ${pruneRel}: deleted ${dead.length} unused file(s) and ${deadTests.length} test(s) of them, kept ${kept} still in use`);
+}
+log('Pruning Readest code Paperback no longer uses…');
+pruneUnused('app/library');
 
 log(problems ? `\nDone with ${problems} problem(s) — see messages above.` : '\nAll done.');
 process.exit(problems ? 1 : 0);

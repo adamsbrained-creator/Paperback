@@ -2,13 +2,65 @@
 
 Newest first. Each entry says where to look on the phone.
 
-## Same header on every screen (in progress)
+## Scrapbook links back to the book
+- Everything sent to Scrapbook (a Journal note, a highlight, a note on a highlight) now ends with an **Open in Paperback**
+  link. In Scrapbook, tap it and Paperback opens that book, at the highlighted passage when there is one.
+- It uses Readest's own `readest://book/…` links, which Paperback already understood, so Paperback needed no new
+  permission. The Scrapbook app needs the matching update (see the Scrapbook zip): it makes the link tappable and files
+  things sent from Paperback in a **Paperback** box (made the first time).
+- If the book is no longer in your library, Paperback says "Book not in your library".
+- Code: `paperbackLink` in `services/paperback/scrapbook.ts` (tested against Readest's own link reader).
+
+## Highlights → Scrapbook
+- Menu → **Notes & highlights**: every card has a small round share button in its top right corner. The same button is
+  on the cards on a book's **Journal** page.
+- It opens the phone's share sheet; choose **Scrapbook** and its "Save to Scrapbook" screen opens with the text.
+  A plain highlight arrives as a **Quote** scrap: "the passage" and, underneath, "— Author, Book, p. 12".
+  A note you wrote arrives as a normal scrap: your note, then the passage, then the source.
+- Without a share sheet the text is copied and a short message says so.
+- Code: `SendToScrapbook.tsx`, `scrapbookHighlight` in `services/paperback/scrapbook.ts` (with tests).
+
+## Journal → Scrapbook
+- Home or Library → a book → **Journal** (the page with your note): under *My note* there is now **Send to Scrapbook**.
+  It opens the phone's share sheet with the book title, your note and the author; choose **Scrapbook** and its
+  "Save to Scrapbook" screen opens with it (the book title becomes the scrap's title; pick the box and Save).
+- The button is greyed out while the note is empty. It sends what is in the box, saved or not.
+- Needs the Scrapbook app installed. Without a share sheet the text is copied instead.
+- Code: `shareToApps` in `platform.ts` (Readest's share plugin), `services/paperback/scrapbook.ts`.
+
+## Paperback's own Library
+- **Library** (menu → Library, or the Library tab) is built from the new designs, with the standard header (menu ·
+  "paperback" · search, "Library" underneath and a "8 books" chip) that follows **Header size**:
+  - **Shelves** (home layout): a *Continue reading* card, then *Also reading*, *Not started*, *Favorites* (an empty
+    one explains how to add) and *Finished*. **See all** opens that shelf in *All books*.
+  - **All books**: filter chips (All, Reading, Not started, Favorites, Finished), a sort menu (Recently opened,
+    Recently added, Title, Author), grid or list, and **+** to import books. Back returns to the shelves.
+  - **Tap** a book to read it; **press and hold** for the book sheet: Resume, Pin for today, Add to Favorites,
+    Add to collection, Mark as finished, Book details, Remove from library (asks first).
+  - **Empty library**: Import books and Discover free books.
+  - Books without a cover get a drawn cover in a colour taken from the book.
+- **Import** works inside Paperback (the + on All books, the Library's empty screen, or Settings → Library & import):
+  pick several files at once.
+- **Readest's Library is gone from the app.** Opening a file from another app, restoring the last books and links
+  are handled by Paperback's own launch screen (`Boot`). Readest's library code is deleted before the build
+  (about 16,000 lines), so building takes less.
+- Authors → an author opens *All books* searched for that author. Settings → **Reader defaults** opens Readest's reader
+  settings window. Backup & restore → *Back up or restore books and notes* opens Readest's backup window.
+- **No longer available** (they lived only in Readest's Library): importing a whole folder, watched folders, cloud
+  sync of the library, the transfer queue, send-to-Readest links, searching inside book text from Search, tagging
+  and grouping books, and editing book details from the library. Ask when you want any of them back in Paperback's
+  own style.
+
+## Same header on every screen
 - Screens now get Settings' header: round menu button, "paperback", round search button, and the screen's name
   underneath, plus the round menu button at the bottom right. It follows **Settings → App style → Header size**
   (Compact, Regular, Large), so changing the size changes it everywhere.
-- Done so far: **Discover** (the list of catalogs), **Collections**, **Bookmarks**, **Dictionary**. The rest
-  (Currently reading, Recently read, Finished, Authors, Notes & highlights, Search, Favorites, Wishlist, Genres,
-  Backup & restore) follow in the next steps. Stats keeps its own header.
+- On: Discover, Collections, a single collection (its name underneath), Book details, Bookmarks, Dictionary,
+  Currently reading, Recently read, Finished, Authors, Notes & highlights, Search, Favorites, Wishlist, Genres,
+  Import, Appearance (was "Themes") and Backup & restore (was "Backup"). Home and Stats keep their own headers,
+  because they have their own designs.
+- Home: the "p" mark next to the wordmark is gone, only "paperback" is left.
+- A long title underneath is cut with "…" instead of wrapping.
 - On the Search screen the header's search button puts the cursor in the search field.
 - Code: `components/paperback/PageTop.tsx`; a screen opts in with `<Shell title='…' pageHeader>`.
 

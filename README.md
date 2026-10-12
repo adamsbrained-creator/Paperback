@@ -61,7 +61,12 @@ depending on it less:
 1. ~~Put every Readest import used by Paperback's screens behind one small adapter module.~~ Done:
    `files/.../components/paperback/platform.ts` is now the only Paperback file that imports Readest code
    (19 names, listed there by area). Replacing a name there replaces it for every screen.
-2. Give Paperback its own library list, reading progress, notes and stats storage.
+   A second kind of step: **when Paperback gets its own version of a Readest screen, Readest's version is
+   deleted from the build.** `apply.mjs` does this at the end (`pruneUnused`): it deletes the files of a Readest
+   folder that nothing else needs, and the tests of those files. Done for **Readest's Library** (`src/app/library`:
+   about 16,000 lines and 55 of its tests). To retire another folder, add one line `pruneUnused('<folder>')`.
+2. Give Paperback its own library list, reading progress, notes and stats storage. (The Library screen, importing,
+   removing, and the app launch (`Boot`) are Paperback's own now; the data underneath is still Readest's.)
 3. Render books with foliate-js directly (the EPUB engine Readest itself uses) instead of Readest's reader.
 4. Swap the Tauri/Rust shell for a lighter Android shell.
 
