@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { PiBookmarkSimple } from 'react-icons/pi';
+import { BookmarkIcon } from '@/components/paperback/icons';
 import Shell from '@/components/paperback/Shell';
 import { usePaperbackData } from '@/components/paperback/usePaperbackData';
 import { usePaperbackOpenBook } from '@/components/paperback/useOpenBook';
@@ -36,7 +36,7 @@ export default function BookmarksPage() {
                   onClick={() => book && openBook(book, b.cfi)}
                 >
                   <div className='pb-bmicon'>
-                    <PiBookmarkSimple size={22} />
+                    <BookmarkIcon size={22} />
                   </div>
                   <div className='pb-grow'>
                     <div className='pb-title pb-ellipsis'>{b.text || b.note || 'Bookmark'}</div>

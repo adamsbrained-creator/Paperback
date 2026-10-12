@@ -1,15 +1,15 @@
 'use client';
 
 import clsx from 'clsx';
-import { PiBooks, PiBooksFill, PiChartBar, PiChartBarFill, PiHouse, PiHouseFill } from 'react-icons/pi';
 import { useAppRouter } from '@/components/paperback/platform';
+import { CollectionsIcon, HomeIcon, StatsIcon } from './icons';
 
 export type TabId = 'home' | 'library' | 'stats';
 
 const TABS = [
-  { id: 'home', label: 'Home', path: '/home', Off: PiHouse, On: PiHouseFill },
-  { id: 'library', label: 'Library', path: '/books', Off: PiBooks, On: PiBooksFill },
-  { id: 'stats', label: 'Stats', path: '/stats', Off: PiChartBar, On: PiChartBarFill },
+  { id: 'home', label: 'Home', path: '/home', Icon: HomeIcon },
+  { id: 'library', label: 'Library', path: '/books', Icon: CollectionsIcon },
+  { id: 'stats', label: 'Stats', path: '/stats', Icon: StatsIcon },
 ] as const;
 
 function useGo() {
@@ -25,7 +25,7 @@ export default function TabBar({ active, bottomInset = 0 }: { active: TabId; bot
     <nav className='pb-tabbar' style={{ paddingBottom: 8 + bottomInset }} aria-label='Main'>
       {TABS.map((t) => {
         const on = t.id === active;
-        const Icon = on ? t.On : t.Off;
+        const Icon = t.Icon;
         return (
           <button
             key={t.id}
@@ -33,7 +33,7 @@ export default function TabBar({ active, bottomInset = 0 }: { active: TabId; bot
             aria-current={on ? 'page' : undefined}
             onClick={() => !on && go(t.id, t.path)}
           >
-            <Icon size={26} />
+            <Icon size={26} filled={on} />
             {t.label}
           </button>
         );
@@ -49,7 +49,7 @@ export function Dock({ active, bottomInset = 0 }: { active: TabId; bottomInset?:
     <nav className='pb-dock' style={{ bottom: 18 + bottomInset }} aria-label='Main'>
       {TABS.map((t) => {
         const on = t.id === active;
-        const Icon = on ? t.On : t.Off;
+        const Icon = t.Icon;
         return (
           <button
             key={t.id}
@@ -58,7 +58,7 @@ export function Dock({ active, bottomInset = 0 }: { active: TabId; bottomInset?:
             aria-current={on ? 'page' : undefined}
             onClick={() => !on && go(t.id, t.path)}
           >
-            <Icon size={26} />
+            <Icon size={26} filled={on} />
             {on && <span>{t.label}</span>}
           </button>
         );

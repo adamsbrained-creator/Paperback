@@ -2,6 +2,36 @@
 
 Newest first. Each entry says where to look on the phone.
 
+## New menu
+- Tap the menu button (top left, or the round button at the bottom right): a small card pops up above the round
+  button with Home, Discover, Collections, Bookmarks, Dictionary, Stats and Settings. The page you are on is
+  highlighted with a coral dot, and the round button turns into a close button.
+- **More** (last row, not in the design) opens the older full list, so Favorites, Wishlist, Authors, Genres,
+  Recently read and Reading history stay reachable. Set `SHOW_MORE = false` in `MenuSheet.tsx` to remove it.
+
+## About redesign
+- Menu → Settings → About Paperback: the logo tile, a large "paperback" and "Version 1.0.0 · personal build",
+  then **Credits** and **Open-source licenses** cards. The header follows your Header size.
+- Until those two get their own pages, tapping a card opens its text in place (the old "Your data" note is
+  inside Credits).
+
+## Settings redesign + header size
+- Menu → Settings looks like the new design: the **Daily goal** card (ring, minutes today, Edit), then Reading,
+  Look and Library groups of rows, About, and a round menu button at the bottom right.
+- Menu → Settings → **App style**: pick a **Header size** (Compact, Regular, Large) with a live sample of each.
+  It is saved on the device. For now it changes the header on Settings and App style; other screens take it as
+  they are redesigned.
+- Placeholders that only keep the look: *Reader defaults* shows "Roboto · 16" and *Library & import* shows
+  "Import, sync" (not read from real settings yet).
+
+## New logo and icon set
+- App icon: the **bookmark p** (logo A): white mark on coral. Launcher icon after installing.
+- Header: the mark sits next to the "paperback" wordmark on Home and Library.
+- Menu → Settings → About Paperback: the logo tile replaces the cover fan.
+- Every icon in the app is now Paperback's own set (24 px grid, 1.9 px stroke, round ends) instead of
+  Phosphor: tab bar, header buttons, Settings rows, search fields, bookmarks. The active tab fills in.
+  Library uses the layers icon. Code: `components/paperback/icons.tsx` and `Logo.tsx`.
+
 ## Discover looks like Paperback
 - Menu → Discover → pick Project Gutenberg (or any catalog): the page now starts with a serif **Discover**
   title and a Home button, the toolbar buttons are round chips, the search field is a pill, catalog

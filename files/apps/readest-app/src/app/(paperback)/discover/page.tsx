@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { PiCaretRight } from 'react-icons/pi';
+import { CaretRightIcon } from '@/components/paperback/icons';
 import { useAppRouter } from '@/components/paperback/platform';
 import { useSettingsStore } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
@@ -47,7 +47,7 @@ export default function DiscoverPage() {
               <div className='pb-title'>{c.name}</div>
               <div className='pb-label pb-ellipsis'>{c.note}</div>
             </div>
-            <PiCaretRight size={18} />
+            <CaretRightIcon size={18} />
           </button>
         ))}
         <div className='pb-note'>

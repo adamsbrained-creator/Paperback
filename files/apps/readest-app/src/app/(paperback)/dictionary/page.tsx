@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { PiMagnifyingGlass } from 'react-icons/pi';
+import { SearchIcon } from '@/components/paperback/icons';
 import { useEnv } from '@/components/paperback/platform';
 import { useCustomDictionaryStore } from '@/components/paperback/platform';
 import {
@@ -78,7 +78,7 @@ export default function DictionaryPage() {
     <Shell title='Dictionary'>
       <div className='pb-stack'>
         <div className='pb-search'>
-          <PiMagnifyingGlass size={20} />
+          <SearchIcon size={20} />
           <input
             value={draft}
             onChange={(e) => setDraft(e.target.value)}

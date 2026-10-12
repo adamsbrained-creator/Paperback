@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { PiMagnifyingGlass } from 'react-icons/pi';
+import { SearchIcon } from '@/components/paperback/icons';
 import { useAppRouter } from '@/components/paperback/platform';
 import { navigateToLibrary } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
@@ -42,7 +42,7 @@ export default function SearchPage() {
     <Shell title='Search'>
       <div className='pb-stack'>
         <div className='pb-search'>
-          <PiMagnifyingGlass size={20} />
+          <SearchIcon size={20} />
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}

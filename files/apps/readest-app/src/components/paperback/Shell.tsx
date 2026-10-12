@@ -1,12 +1,11 @@
 'use client';
 
 import clsx from 'clsx';
-import { PiHouse } from 'react-icons/pi';
 import { useAppRouter } from '@/components/paperback/platform';
 import { useTheme } from '@/components/paperback/platform';
 import { useThemeStore } from '@/components/paperback/platform';
 import { useState } from 'react';
-import { PiList } from 'react-icons/pi';
+import { HomeIcon, MenuLinesIcon } from './icons';
 import MenuSheet from './MenuSheet';
 import TabBar, { Dock, HeaderSwitch, type TabId } from './TabBar';
 import { useNavStyle } from './useNavStyle';
@@ -21,11 +20,13 @@ interface ShellProps {
   tab?: TabId;
   /** Replaces the whole header row (used by Home). */
   header?: React.ReactNode;
+  /** Extra class on the content column (a screen can change its side padding). */
+  wrapClassName?: string;
   children: React.ReactNode;
 }
 
 /** Common frame for the Paperback screens: theme, safe areas, header. */
-export default function Shell({ title, left, right, tab, header, children }: ShellProps) {
+export default function Shell({ title, left, right, tab, header, wrapClassName, children }: ShellProps) {
   const router = useAppRouter();
   const { isDarkMode, safeAreaInsets } = useThemeStore();
   useTheme({ systemUIVisible: true });
@@ -47,14 +48,14 @@ export default function Shell({ title, left, right, tab, header, children }: She
       <span className='bookshelf' hidden aria-hidden />
       {/* Opaque strip under the system status bar, so scrolled content never runs into its icons. */}
       <div className='pb-statusscrim' style={{ height: top }} />
-      <div className={clsx('pb-wrap', bottomNav && 'pb-with-tabs')}>
+      <div className={clsx('pb-wrap', bottomNav && 'pb-with-tabs', wrapClassName)}>
         {tab && navStyle === 'header' && <HeaderSwitch active={tab} />}
         {header ?? (
         <header className='pb-head'>
           {left ?? <h1 className='pb-h1'>{title}</h1>}
           {right ?? (
             <button className='pb-round' aria-label='Home' onClick={() => router.push('/home')}>
-              <PiHouse size={22} />
+              <HomeIcon size={22} />
             </button>
           )}
         </header>
@@ -66,7 +67,7 @@ export default function Shell({ title, left, right, tab, header, children }: She
       {tab && navStyle === 'off' && (
         <>
           <button className='pb-fab' style={{ bottom: 22 + bottom }} aria-label='Menu' onClick={() => setMenuOpen(true)}>
-            <PiList size={26} />
+            <MenuLinesIcon size={26} strokeWidth={2} />
           </button>
           <MenuSheet open={menuOpen} onClose={() => setMenuOpen(false)} />
         </>

@@ -2,7 +2,7 @@
 
 import clsx from 'clsx';
 import { useEffect, useMemo, useState } from 'react';
-import { PiMagnifyingGlass } from 'react-icons/pi';
+import { SearchIcon } from '@/components/paperback/icons';
 import type { PBook } from '@/services/paperback/library';
 import { useAppRouter } from '@/components/paperback/platform';
 import Shell from '@/components/paperback/Shell';
@@ -120,7 +120,7 @@ export default function BooksPage() {
 
       <div className='pb-stack'>
         <div className='pb-search'>
-          <PiMagnifyingGlass size={22} />
+          <SearchIcon size={22} />
           <input
             value={query}
             onChange={(e) => (setQuery(e.target.value), setLimit(PAGE))}

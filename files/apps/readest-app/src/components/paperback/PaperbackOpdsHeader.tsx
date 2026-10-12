@@ -1,7 +1,7 @@
 'use client';
 
-import { PiHouse } from 'react-icons/pi';
 import { useAppRouter } from '@/components/paperback/platform';
+import { HomeIcon } from './icons';
 
 /** Title row shown above Readest's catalog toolbar in Discover. */
 export default function PaperbackOpdsHeader() {
@@ -10,7 +10,7 @@ export default function PaperbackOpdsHeader() {
     <div className='pb-opdshead'>
       <h1 className='pb-opdstitle'>Discover</h1>
       <button className='pb-opdsround' aria-label='Home' onClick={() => router.replace('/home')}>
-        <PiHouse size={22} />
+        <HomeIcon size={22} />
       </button>
     </div>
   );
