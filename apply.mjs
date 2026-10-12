@@ -328,6 +328,8 @@ edit('apps/readest-app/src/app/reader/components/footerbar/NavigationBar.tsx', {
 });
 
 // Discover (the OPDS browser): Paperback header + a class the stylesheet can hang the new look on.
+// Its toolbar (opds/components/Navigation.tsx) and close behaviour (opds/utils/opdsClose.ts) are Paperback's own
+// copies under files/, which replace Readest's when the files are copied in.
 const opdsPage = 'apps/readest-app/src/app/opds/page.tsx';
 edit(opdsPage, {
   what: 'import the Paperback header for Discover',
@@ -341,6 +343,26 @@ edit(opdsPage, {
   marker: '<PaperbackOpdsHeader />',
   anchor: '        <Navigation\n',
   replace: '        <PaperbackOpdsHeader />\n        <Navigation\n',
+});
+edit(opdsPage, {
+  what: 'import the Paperback loading state for Discover',
+  marker: 'import PaperbackLoading',
+  anchor: "import PaperbackOpdsHeader from '@/components/paperback/PaperbackOpdsHeader';",
+  replace:
+    "import PaperbackOpdsHeader from '@/components/paperback/PaperbackOpdsHeader';\nimport PaperbackLoading from '@/components/paperback/PaperbackLoading';",
+});
+edit(opdsPage, {
+  what: 'Paperback loading state in Discover',
+  marker: '<PaperbackLoading label',
+  anchor: `        {viewMode === 'loading' && (
+          <div className='flex h-full items-center justify-center'>
+            <div className='text-center'>
+              <div className='loading loading-spinner loading-lg mb-4'></div>
+              <h1 className='text-base font-semibold'>{_('Loading...')}</h1>
+            </div>
+          </div>
+        )}`,
+  replace: "        {viewMode === 'loading' && <PaperbackLoading label={_('Loading...')} />}",
 });
 edit(opdsPage, {
   what: 'mark the Discover page for styling',

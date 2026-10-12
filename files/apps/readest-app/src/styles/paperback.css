@@ -851,8 +851,8 @@
 
 /* ---------- Settings (redesign) + page header ---------- */
 .pb-set-wrap { max-width: 560px; padding: 0 20px 112px; }
-.pb-root { --set-sub: #5f5f5f; --set-rule: #e0e0e0; --set-goal: #111111; }
-.pb-root.pb-dark { --set-sub: #9a9a9a; --set-rule: #2a2a2a; --set-goal: #1f1f1f; }
+.pb-root, .pb-scope { --set-sub: #5f5f5f; --set-rule: #e0e0e0; --set-goal: #111111; }
+.pb-root.pb-dark, .pb-scope.pb-dark { --set-sub: #9a9a9a; --set-rule: #2a2a2a; --set-goal: #1f1f1f; }
 
 .pb-ph { width: 100%; }
 .pb-ph-bar { display: grid; align-items: center; column-gap: 4px; }
@@ -904,8 +904,8 @@
 }
 
 /* ---------- App style (header size) ---------- */
-.pb-root { --as-track: #e7e7e7; --as-on: #ffffff; --as-on-ink: #161616; --as-edge: #ececec; --as-badge: #f0f0f0; --as-sel-bg: #fde4dd; --as-sel-ink: #b23a22; }
-.pb-root.pb-dark { --as-track: #0b0b0b; --as-on: #2c2c2c; --as-on-ink: #f5f5f5; --as-edge: #2a2a2a; --as-badge: #1f1f1f; --as-sel-bg: rgba(244, 107, 78, 0.18); --as-sel-ink: #f98a72; }
+.pb-root, .pb-scope { --as-track: #e7e7e7; --as-on: #ffffff; --as-on-ink: #161616; --as-edge: #ececec; --as-badge: #f0f0f0; --as-sel-bg: #fde4dd; --as-sel-ink: #b23a22; }
+.pb-root.pb-dark, .pb-scope.pb-dark { --as-track: #0b0b0b; --as-on: #2c2c2c; --as-on-ink: #f5f5f5; --as-edge: #2a2a2a; --as-badge: #1f1f1f; --as-sel-bg: rgba(244, 107, 78, 0.18); --as-sel-ink: #f98a72; }
 
 .pb-ph-static { pointer-events: none; }
 .pb-as-intro { margin-top: 18px; padding: 0 4px; font-size: 15px; line-height: 1.45; color: var(--set-sub); }
@@ -949,8 +949,8 @@
 .pb-about-panel b { color: var(--pb-ink); font-weight: 600; }
 
 /* ---------- Menu pop-up ---------- */
-.pb-root { --menu-bg: #ffffff; --menu-on: #f3f3f3; }
-.pb-root.pb-dark { --menu-bg: #1c1c1c; --menu-on: #2c2c2c; }
+.pb-root, .pb-scope { --menu-bg: #ffffff; --menu-on: #f3f3f3; }
+.pb-root.pb-dark, .pb-scope.pb-dark { --menu-bg: #1c1c1c; --menu-on: #2c2c2c; }
 .pb-menu-scrim { position: fixed; inset: 0; z-index: 45; background: rgba(22, 22, 22, 0.45); }
 .pb-menu {
   position: fixed; right: 20px; z-index: 46; width: 264px; max-width: calc(100vw - 40px); padding: 8px;
@@ -966,3 +966,19 @@
 .pb-menu-name { flex: 1; }
 .pb-menu-dot { width: 8px; height: 8px; border-radius: 50%; background: #f2674a; }
 .pb-menu-close { z-index: 47; }
+
+/* ---------- .pb-scope: Paperback pieces (header, menu) placed on a screen that is not a Paperback screen,
+   such as Discover's catalog browser. Colours follow the app theme, so light and dark both work. ---------- */
+.pb-scope {
+  --pb-bg: var(--color-base-100);
+  --pb-card: var(--color-base-300);
+  --pb-ink: var(--color-base-content);
+  --pb-sub: color-mix(in srgb, var(--color-base-content) 60%, transparent);
+  --pb-ac: #f46b4e;
+  --pb-pk: #f46b4e;
+  --pb-on-ac: #111111;
+  color: var(--color-base-content);
+  font-family: var(--font-outfit), 'Outfit', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.pb-scope *, .pb-scope *::before, .pb-scope *::after { box-sizing: border-box; }

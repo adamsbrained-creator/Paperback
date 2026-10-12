@@ -50,6 +50,8 @@ If a build fails: open the run, click the red step, and send me that step's log.
 
 Replace or add files under `files/` (same folder layout) and run the build again. For a change in
 an existing Readest file, add a small edit to `apply.mjs`, which I can write for you.
+A few files under `files/` are Readest's own files, copied and changed (the Discover toolbar, for
+example); `NOTICE.md` lists them. Same-named files in `files/` replace Readest's when copied in.
 
 ## Roadmap: less Readest
 

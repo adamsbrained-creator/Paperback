@@ -143,47 +143,45 @@
 }
 
 /* ---------- Discover (the catalog browser) in the Paperback look ----------
-   Uses the app theme's own colours so it needs nothing from the Paperback screens' stylesheet. */
-.pb-opds .pb-opdshead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 20px 4px;
+   Colours come from the app theme (base-100 page, base-300 chips, base-content ink). */
+@keyframes pb-spin { to { transform: rotate(360deg); } }
+
+.pb-opds {
+  --pb-track: color-mix(in srgb, var(--color-base-content) 9%, var(--color-base-100));
+  font-family: var(--font-outfit), 'Outfit', system-ui, sans-serif;
 }
-.pb-opds .pb-opdstitle {
-  margin: 0;
-  font-family: var(--font-newsreader), 'Newsreader', Georgia, serif;
-  font-size: 38px;
-  font-weight: 400;
-  letter-spacing: -0.01em;
+.pb-opds .pb-opds-head { padding: 0 20px; }
+.pb-opds main { padding-bottom: 96px; }
+
+/* toolbar: back, forward, catalog home, search pill, add, close */
+.pb-nav { display: flex; align-items: center; gap: 6px; margin-top: 16px; padding: 0 20px; }
+.pb-nav-btn {
+  flex: none; width: 40px; height: 40px; min-height: 40px; padding: 0; border: 0; border-radius: 50%;
+  background: var(--color-base-300); color: var(--color-base-content);
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
 }
-.pb-opds .pb-opdsround {
-  width: 44px;
-  height: 44px;
-  border: 0;
-  border-radius: 22px;
-  background: var(--color-base-300);
-  color: var(--color-base-content);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.pb-nav-btn:disabled { color: color-mix(in srgb, var(--color-base-content) 30%, transparent); cursor: default; }
+.pb-nav-search { position: relative; flex: 1; min-width: 0; }
+.pb-nav-search input {
+  display: block; width: 100%; height: 40px; padding: 0 14px; border: 0; border-radius: 20px; outline: 0;
+  background: var(--color-base-300); color: var(--color-base-content); box-shadow: none; appearance: none;
+  font: 400 14px var(--font-outfit), 'Outfit', system-ui, sans-serif; text-overflow: ellipsis;
+}
+.pb-nav-search input.has-clear { padding-right: 38px; }
+.pb-nav-search input::placeholder { color: color-mix(in srgb, var(--color-base-content) 60%, transparent); opacity: 1; }
+.pb-nav-clear {
+  position: absolute; right: 6px; top: 50%; width: 28px; height: 28px; margin-top: -14px; padding: 0; border: 0;
+  border-radius: 50%; background: transparent; color: inherit; display: flex; align-items: center; justify-content: center; cursor: pointer;
+}
+.pb-nav-close {
+  flex: none; width: 36px; height: 40px; padding: 0; border: 0; background: transparent; color: inherit;
+  display: flex; align-items: center; justify-content: center; cursor: pointer;
 }
 
-/* catalog toolbar: round chips and a pill search field */
-.pb-opds .btn-ghost.btn-sm {
-  width: 40px;
-  min-height: 40px;
-  height: 40px;
-  padding: 0;
-  border-radius: 9999px;
-  background: var(--color-base-300);
-}
-.pb-opds input[type='search'],
-.pb-opds input[type='text'] {
-  border: 0;
-  border-radius: 9999px;
-  background: var(--color-base-300);
-}
+/* loading */
+.pb-loading { margin-top: 220px; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+.pb-loading-text { font-size: 17px; font-weight: 600; }
+.pb-spin { animation: pb-spin 1s linear infinite; }
 
 /* catalog entries: soft cards; books: rounded covers */
 .pb-opds .card.bg-base-100 {

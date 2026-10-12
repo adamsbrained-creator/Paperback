@@ -54,6 +54,7 @@ const DEFS = {
   // Not in the design file; drawn to the same grid and stroke so they sit with the set.
   plus: { d: 'M12 5v14 M5 12h14' },
   caretRight: { d: 'M9 5l7 7-7 7' },
+  caretLeft: { d: 'M15 5l-7 7 7 7' },
 } satisfies Record<string, Def>;
 
 export type IconName = keyof typeof DEFS;
@@ -123,3 +124,4 @@ export const LibraryIcon = make('library');
 export const ReaderIcon = make('reader');
 export const PlusIcon = make('plus');
 export const CaretRightIcon = make('caretRight');
+export const CaretLeftIcon = make('caretLeft');

@@ -9,3 +9,11 @@ third-party components keep their own licenses.
 This repository contains Paperback's own screens, logic and design (`files/`), a script that
 adjusts a few Readest files (`apply.mjs`), and the build workflow. If you distribute Paperback to
 other people, the AGPL requires you to make the corresponding source available to them.
+
+## Readest files that Paperback replaces
+
+A few files under `files/` start from Readest's own file of the same name and are changed for Paperback.
+They stay under Readest's license (AGPL-3.0) and say so in their first lines:
+
+- `src/app/opds/components/Navigation.tsx`: Discover's toolbar (new look; same behaviour).
+- `src/app/opds/utils/opdsClose.ts`: closing a catalog returns to Paperback's Discover list.

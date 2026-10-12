@@ -2,6 +2,17 @@
 
 Newest first. Each entry says where to look on the phone.
 
+## Discover (catalog browser) redesign
+- Menu → Discover → pick a catalog: the "paperback" header with **Discover** under it, then the toolbar:
+  back, forward, catalog home, a pill search field, add to My Catalogs (**+**) and close (**✕**). Disabled
+  arrows are greyed. The round menu button and its pop-up are here too.
+- Loading shows the coral spinner with "Loading…".
+- Closing a catalog (✕ or Android Back at its first page) now returns to the Discover list instead of
+  Readest's library.
+- Feeds, book pages and search results are still Readest's, with the earlier soft cards and rounded covers;
+  they will follow when you send their designs.
+- Code: the toolbar is a copy of Readest's `Navigation.tsx` kept in `files/` (see `NOTICE.md`).
+
 ## New menu
 - Tap the menu button (top left, or the round button at the bottom right): a small card pops up above the round
   button with Home, Discover, Collections, Bookmarks, Dictionary, Stats and Settings. The page you are on is
