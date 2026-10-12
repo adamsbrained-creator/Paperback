@@ -33,7 +33,7 @@ export default function DiscoverPage() {
   }, [saved]);
 
   return (
-    <Shell title='Discover'>
+    <Shell title='Discover' pageHeader>
       <div className='pb-stack'>
         {catalogs.map((c) => (
           <button

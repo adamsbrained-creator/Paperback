@@ -908,6 +908,8 @@
 .pb-root.pb-dark, .pb-scope.pb-dark { --as-track: #0b0b0b; --as-on: #2c2c2c; --as-on-ink: #f5f5f5; --as-edge: #2a2a2a; --as-badge: #1f1f1f; --as-sel-bg: rgba(244, 107, 78, 0.18); --as-sel-ink: #f98a72; }
 
 .pb-ph-static { pointer-events: none; }
+/* Standard screen header (Shell pageHeader): the same bar as Settings, with room before the content. */
+.pb-pg-top { margin-bottom: 16px; }
 .pb-as-intro { margin-top: 18px; padding: 0 4px; font-size: 15px; line-height: 1.45; color: var(--set-sub); }
 .pb-as-card { margin-top: 16px; padding: 16px; border-radius: 24px; background: var(--pb-card); }
 .pb-as-cardtitle { font-size: 16px; font-weight: 500; }

@@ -24,7 +24,7 @@ export default function CollectionsPage() {
   };
 
   return (
-    <Shell title='Collections'>
+    <Shell title='Collections' pageHeader>
       <div className='pb-stack'>
         <div className='pb-card pb-stack'>
           <input

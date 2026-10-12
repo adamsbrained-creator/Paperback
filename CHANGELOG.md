@@ -2,6 +2,16 @@
 
 Newest first. Each entry says where to look on the phone.
 
+## Same header on every screen (in progress)
+- Screens now get Settings' header: round menu button, "paperback", round search button, and the screen's name
+  underneath, plus the round menu button at the bottom right. It follows **Settings → App style → Header size**
+  (Compact, Regular, Large), so changing the size changes it everywhere.
+- Done so far: **Discover** (the list of catalogs), **Collections**, **Bookmarks**, **Dictionary**. The rest
+  (Currently reading, Recently read, Finished, Authors, Notes & highlights, Search, Favorites, Wishlist, Genres,
+  Backup & restore) follow in the next steps. Stats keeps its own header.
+- On the Search screen the header's search button puts the cursor in the search field.
+- Code: `components/paperback/PageTop.tsx`; a screen opts in with `<Shell title='…' pageHeader>`.
+
 ## Discover (catalog browser) redesign
 - Menu → Discover → pick a catalog: the "paperback" header with **Discover** under it, then the toolbar:
   back, forward, catalog home, a pill search field, add to My Catalogs (**+**) and close (**✕**). Disabled

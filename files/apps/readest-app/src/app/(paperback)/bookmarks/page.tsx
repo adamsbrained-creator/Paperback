@@ -17,7 +17,7 @@ export default function BookmarksPage() {
   const groups = useMemo(() => groupBookmarks(rows ?? []), [rows]);
 
   return (
-    <Shell title='Bookmarks'>
+    <Shell title='Bookmarks' pageHeader>
       <div className='pb-stack'>
         {rows === null && <div className='pb-empty'>Loading…</div>}
         {rows !== null && groups.length === 0 && (

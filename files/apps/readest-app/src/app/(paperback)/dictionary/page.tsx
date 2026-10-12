@@ -75,7 +75,7 @@ export default function DictionaryPage() {
   };
 
   return (
-    <Shell title='Dictionary'>
+    <Shell title='Dictionary' pageHeader>
       <div className='pb-stack'>
         <div className='pb-search'>
           <SearchIcon size={20} />

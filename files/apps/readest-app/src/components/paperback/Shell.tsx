@@ -7,6 +7,7 @@ import { useThemeStore } from '@/components/paperback/platform';
 import { useState } from 'react';
 import { HomeIcon, MenuLinesIcon } from './icons';
 import MenuSheet from './MenuSheet';
+import PageTop from './PageTop';
 import TabBar, { Dock, HeaderSwitch, type TabId } from './TabBar';
 import { useNavStyle } from './useNavStyle';
 
@@ -22,11 +23,13 @@ interface ShellProps {
   header?: React.ReactNode;
   /** Extra class on the content column (a screen can change its side padding). */
   wrapClassName?: string;
+  /** Standard Paperback header (menu · "paperback" · search, `title` underneath, sized by Header size). */
+  pageHeader?: boolean;
   children: React.ReactNode;
 }
 
 /** Common frame for the Paperback screens: theme, safe areas, header. */
-export default function Shell({ title, left, right, tab, header, wrapClassName, children }: ShellProps) {
+export default function Shell({ title, left, right, tab, header, wrapClassName, pageHeader, children }: ShellProps) {
   const router = useAppRouter();
   const { isDarkMode, safeAreaInsets } = useThemeStore();
   useTheme({ systemUIVisible: true });
@@ -48,18 +51,21 @@ export default function Shell({ title, left, right, tab, header, wrapClassName, 
       <span className='bookshelf' hidden aria-hidden />
       {/* Opaque strip under the system status bar, so scrolled content never runs into its icons. */}
       <div className='pb-statusscrim' style={{ height: top }} />
-      <div className={clsx('pb-wrap', bottomNav && 'pb-with-tabs', wrapClassName)}>
+      <div className={clsx('pb-wrap', bottomNav && 'pb-with-tabs', pageHeader && !header && 'pb-set-wrap', wrapClassName)}>
         {tab && navStyle === 'header' && <HeaderSwitch active={tab} />}
-        {header ?? (
-        <header className='pb-head'>
-          {left ?? <h1 className='pb-h1'>{title}</h1>}
-          {right ?? (
-            <button className='pb-round' aria-label='Home' onClick={() => router.push('/home')}>
-              <HomeIcon size={22} />
-            </button>
-          )}
-        </header>
-        )}
+        {header ??
+          (pageHeader ? (
+            <PageTop label={title} />
+          ) : (
+            <header className='pb-head'>
+              {left ?? <h1 className='pb-h1'>{title}</h1>}
+              {right ?? (
+                <button className='pb-round' aria-label='Home' onClick={() => router.push('/home')}>
+                  <HomeIcon size={22} />
+                </button>
+              )}
+            </header>
+          ))}
         {children}
       </div>
       {tab && navStyle === 'bar' && <TabBar active={tab} bottomInset={bottom} />}
