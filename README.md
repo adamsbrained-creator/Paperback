@@ -71,3 +71,27 @@ depending on it less:
 4. Swap the Tauri/Rust shell for a lighter Android shell.
 
 Each step keeps the app working; the build gets shorter as Readest code is no longer compiled.
+
+### The plan to cut Readest down to its engine
+
+Decided: Paperback is a personal, offline app. Everything of Readest's that is about accounts and cloud goes; the
+reading engine and the features you use stay.
+
+- **Stays:** the reader and its book engine, Discover (OPDS catalogs), reading aloud (text to speech), dictionary
+  lookups, translation, the audiobooks player, speed reading (RSVP), highlights and notes, reading statistics,
+  local storage, import and backup.
+- **Goes:** sync and cloud storage, sign-in and accounts, subscriptions and payments, the AI assistant, Send to
+  Readest, share links, and the Hardcover, Notion, KOReader and Audiobookshelf connections (Audiobookshelf stays
+  only if you use an Audiobookshelf server; say so).
+- **New work (not in Readest):** dictation (speech to text). Readest has no such feature, so it would be built new.
+
+Order:
+
+1. ~~Delete Readest's unused routes~~ Done: sign-in, account, api, updater, send, share and cloud-callback pages
+   (`pruneUnused` list in `apply.mjs`). About 15,000 lines fewer (about 6% of Readest's compiled code).
+2. Stop downloading Readest at build time: commit a trimmed copy of its engine into this repo. Needed for step 3,
+   because cloud code is woven into files the reader and stores share (about 120 files mention accounts or sync),
+   and cutting it out with patch scripts would be fragile. Needs a complete Readest source (the zip sent earlier
+   lacks `src/components/ui`).
+3. Remove cloud, accounts, AI, payments and the third-party connections from that copy (about 34,000 lines).
+4. Redesign the reader's own screens in Paperback's style.

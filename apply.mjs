@@ -403,7 +403,25 @@ function pruneUnused(pruneRel) {
   log(`  - ${pruneRel}: deleted ${dead.length} unused file(s) and ${deadTests.length} test(s) of them, kept ${kept} still in use`);
 }
 log('Pruning Readest code Paperback no longer uses…');
+// Paperback's own Library replaced Readest's.
 pruneUnused('app/library');
+// Pages for Readest's accounts, cloud and sharing, which a personal offline app has no use for.
+// (Kept on purpose: reader, opds = Discover, player = audiobooks, stats.)
+for (const route of [
+  'app/auth', //            sign in
+  'app/user', //            account, subscription
+  'app/api', //             Readest's own server routes (billing, AI, sharing, cloud)
+  'app/updater', //         Readest's updater
+  'app/send', //            Send to Readest
+  'app/o', //               share links
+  'app/s', //               share links
+  'app/link', //            device link
+  'app/gdrive-callback', // Google Drive sign-in
+  'app/onedrive-callback', // OneDrive sign-in
+  'app/hardcover', //       Hardcover sign-in
+]) {
+  pruneUnused(route);
+}
 
 log(problems ? `\nDone with ${problems} problem(s) — see messages above.` : '\nAll done.');
 process.exit(problems ? 1 : 0);

@@ -2,6 +2,29 @@
 
 Newest first. Each entry says where to look on the phone.
 
+## Stats overhaul: the Activity page
+- Menu or tab bar → **Stats**. The page now has five tabs under the title: **Activity**, **Milestones**, **Books**,
+  **History**, **Insights**. Activity is built (copied from the new mockup); the other four are empty pages for later.
+- **Activity**, top to bottom: the reading chart (Time or Pages; Weekly, Monthly, Yearly or All time; the arrows or the
+  date in the middle move to another week, month or year, and tapping the date opens a picker), streak / pages /
+  finished, the daily goal ring with the last seven days, six detail tiles (pace, average session, sessions, longest
+  session, best day, average a day), the 18-week reading rhythm, reading patterns (a 24-hour clock plus time of day and
+  day of week, tap a slice for its count), and your most read books.
+- The chart's dashed line and the daily goal use the minutes goal from **Reading goals** (default 30).
+- **View sessions** (under the chart) opens every session by year and month, newest month open. Sessions now show the
+  pages they covered. The older *Reading history* menu link opens this screen.
+- **Reading goals** (daily goal card) opens the existing goals screen. The phone's back button returns to Activity.
+- Gone: the old Stats / Goals / History tab strip and its Overview page (everything on it is now on Activity).
+- Code: `app/stats/` (`page.tsx`, `components/ActivityView.tsx`, `PatternsCard.tsx`, `SessionsScreen.tsx`,
+  `PeriodDialog.tsx`, `StatsNav.tsx`, `PlaceholderView.tsx`), `services/statistics/activityStats.ts` (all the numbers,
+  with tests), `styles/paperback-stats.css`. Delete `app/stats/components/StatsView.tsx` and `HistoryView.tsx`.
+
+## Less Readest in the build
+- Readest's sign-in, account, subscription, share-link, updater and server (`api`) pages are no longer compiled
+  into the app: about 15,000 lines. Nothing on the phone should look different. They were not reachable from
+  Paperback, and the Android app is a static export that cannot run Readest's server routes anyway.
+- If something that worked before now shows a blank or "not found" page, tell me which screen.
+
 ## Scrapbook links back to the book
 - Everything sent to Scrapbook (a Journal note, a highlight, a note on a highlight) now ends with an **Open in Paperback**
   link. In Scrapbook, tap it and Paperback opens that book, at the highlighted passage when there is one.
