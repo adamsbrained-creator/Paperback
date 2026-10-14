@@ -53,6 +53,8 @@ export interface Session {
   seconds: number;
   pageFrom: number;
   pageTo: number;
+  /** Distinct pages visited in this session (a page re-read within it counts once). */
+  pages: number;
 }
 
 export interface SessionDay {
@@ -83,7 +85,7 @@ const addDays = (d: Date, n: number): Date =>
 /** Monday = 0 … Sunday = 6. */
 const mondayIndex = (d: Date): number => (d.getDay() + 6) % 7;
 
-const clampDuration = (e: StatEventRow): number =>
+export const clampDuration = (e: StatEventRow): number =>
   Math.max(0, Math.min(e.duration, MAX_EVENT_SECONDS));
 
 export function rangeStart(range: StatsRange, now: Date): Date {
@@ -106,6 +108,7 @@ export function buildSessions(events: StatEventRow[]): Session[] {
   const sorted = [...events].sort((a, b) => a.startTime - b.startTime);
   const sessions: Session[] = [];
   let cur: Session | null = null;
+  let curPages = new Set<number>();
   for (const e of sorted) {
     const dur = clampDuration(e);
     if (dur <= 0) continue;
@@ -115,7 +118,10 @@ export function buildSessions(events: StatEventRow[]): Session[] {
       cur.end = Math.max(cur.end, end);
       cur.pageFrom = Math.min(cur.pageFrom, e.page);
       cur.pageTo = Math.max(cur.pageTo, e.page);
+      curPages.add(e.page);
+      cur.pages = curPages.size;
     } else {
+      curPages = new Set([e.page]);
       cur = {
         md5: e.md5,
         title: e.title,
@@ -124,6 +130,7 @@ export function buildSessions(events: StatEventRow[]): Session[] {
         seconds: dur,
         pageFrom: e.page,
         pageTo: e.page,
+        pages: 1,
       };
       sessions.push(cur);
     }
