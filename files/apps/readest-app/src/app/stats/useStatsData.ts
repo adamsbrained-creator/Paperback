@@ -55,6 +55,17 @@ export function countFinishedSince(library: FinishedLike[], since: Date): number
   ).length;
 }
 
+/** Books marked finished from the first day through the last day (both included) of a window. */
+export function countFinishedBetween(library: FinishedLike[], firstDay: Date, lastDay: Date): number {
+  const from = new Date(firstDay.getFullYear(), firstDay.getMonth(), firstDay.getDate()).getTime();
+  const to = new Date(lastDay.getFullYear(), lastDay.getMonth(), lastDay.getDate() + 1).getTime();
+  return library.filter((b) => {
+    if (b.deletedAt || b.readingStatus !== 'finished') return false;
+    const at = b.readingStatusUpdatedAt ?? b.updatedAt ?? 0;
+    return at >= from && at < to;
+  }).length;
+}
+
 export const countFinishedInRange = (library: FinishedLike[], range: StatsRange, now: Date) =>
   countFinishedSince(library, rangeStart(range, now));
 

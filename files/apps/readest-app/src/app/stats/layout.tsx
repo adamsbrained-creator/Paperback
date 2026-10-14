@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Newsreader, Outfit } from 'next/font/google';
 import '../../styles/paperback.css';
+import '../../styles/paperback-stats.css';
 
 // next/font self-hosts Outfit at build time, so the page also works offline.
 const outfit = Outfit({
