@@ -1,0 +1,58 @@
+name: Make signing key
+
+# Run once: Actions -> "Make signing key" -> Run workflow.
+# It reuses paperback.jks + paperback-key.properties if they are in the repo root,
+# otherwise it creates a brand new key. Then it packs everything into a download
+# called "signing-key" (Summary page of the run, at the bottom, under Artifacts).
+# The secrets are NOT printed in the log. The download expires after 1 day.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  make-key:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: make or reuse the key
+        run: |
+          set -euo pipefail
+          OUT="$RUNNER_TEMP/out"
+          mkdir -p "$OUT"
+          cd "$OUT"
+
+          if [ -f "$GITHUB_WORKSPACE/paperback.jks" ] && [ -f "$GITHUB_WORKSPACE/paperback-key.properties" ]; then
+            echo "Reusing paperback.jks from the repo (same key = updates install over the old app)"
+            cp "$GITHUB_WORKSPACE/paperback.jks" "$GITHUB_WORKSPACE/paperback-key.properties" .
+            ALIAS="$(grep '^alias=' paperback-key.properties | cut -d= -f2- | tr -d '\r ')"
+            PASS="$(grep '^password=' paperback-key.properties | cut -d= -f2- | tr -d '\r ')"
+            keytool -list -keystore paperback.jks -storepass "$PASS" -alias "$ALIAS" > /dev/null
+          else
+            echo "No key in the repo: creating a NEW one"
+            ALIAS=paperback
+            PASS="$(LC_ALL=C tr -dc 'A-Za-z0-9' </dev/urandom | head -c 28 || true)"
+            keytool -genkeypair -keystore paperback.jks -alias "$ALIAS" \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$PASS" -keypass "$PASS" -dname "CN=Paperback"
+            printf 'alias=%s\npassword=%s\n' "$ALIAS" "$PASS" > paperback-key.properties
+          fi
+
+          B64="$(base64 -w0 paperback.jks)"
+          cat > github-secrets.txt <<EOT
+          ANDROID_KEY_ALIAS      = $ALIAS
+          ANDROID_KEY_PASSWORD   = $PASS
+          ANDROID_KEY_BASE64     = $B64
+          EOT
+          sed -i 's/^          //' github-secrets.txt
+          keytool -list -v -keystore paperback.jks -storepass "$PASS" | grep -E "Alias name|SHA256"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: signing-key
+          path: ${{ runner.temp }}/out/
+          retention-days: 1
+          if-no-files-found: error
