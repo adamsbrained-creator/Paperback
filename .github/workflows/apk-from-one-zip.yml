@@ -1,0 +1,234 @@
+name: Paperback APK from one zip
+
+# Builds a signed Android APK of Paperback from ONE zip file.
+# Use paperback.zip: it holds the whole app (everything except the tests folder, about
+# 14 MB, under GitHub's 25 MB upload limit). The tests are not needed to build the APK.
+#
+#   1. In this repo: Add file -> Upload files -> pick the zip. Commit.
+#      (Leave the name box EMPTY and it builds the newest zip. Or type a name to build a specific one.)
+#   2. Actions -> "Paperback APK from one zip" -> Run workflow -> Run workflow.
+#   3. When it is green: Releases -> download Paperback.apk and install it.
+#
+# A top folder inside the zip (Paperback/) is fine. Nothing else in this repo is used.
+# The signing key is NEVER kept in the repo (it is public): put it in Settings -> Secrets and variables ->
+# Actions as ANDROID_KEY_BASE64, ANDROID_KEY_ALIAS and ANDROID_KEY_PASSWORD.
+# It does not download Readest. It only downloads
+# the seven small code packages listed in submodules.txt (scripts/fetch-submodules.sh).
+# It does NOT run on push.
+
+on:
+  workflow_dispatch:
+    inputs:
+      zip_path:
+        description: 'Name of the zip in the main folder. Leave EMPTY to use the newest zip (paperback-2.zip and so on)'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      # Android package id. Differs from Readest's so both can be installed side by side.
+      PAPERBACK_APP_ID: com.paperback.reader
+    steps:
+      - name: free disk space (the Android build needs a lot)
+        run: |
+          sudo rm -rf /usr/share/dotnet /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL /usr/local/share/boost
+          df -h /
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # the history (without file contents) tells which zip was uploaded last
+          fetch-depth: 0
+          filter: blob:none
+
+      - name: unpack the zip
+        env:
+          INPUT_ZIP: ${{ inputs.zip_path }}
+        run: |
+          set -euo pipefail
+          ZIP_PATH="$INPUT_ZIP"
+          if [ -z "$ZIP_PATH" ]; then
+            # no name typed: take the zip in the main folder that was uploaded last
+            best=""; bestt=0
+            for f in *.zip; do
+              [ -f "$f" ] || continue
+              t="$(git log -1 --format=%ct -- "$f" 2>/dev/null || true)"; t="${t:-0}"
+              if [ "$t" -ge "$bestt" ]; then best="$f"; bestt="$t"; fi
+            done
+            ZIP_PATH="$best"
+            echo "No name typed: using the newest zip, '$ZIP_PATH'"
+          fi
+          echo "ZIP_PATH=$ZIP_PATH" >> "$GITHUB_ENV"
+          if [ -z "$ZIP_PATH" ] || [ ! -f "$ZIP_PATH" ]; then
+            echo "::error::Could not find '$ZIP_PATH' in the repo. Upload the zip (Add file -> Upload files) and run again."
+            ls -la
+            exit 1
+          fi
+          SRC="$RUNNER_TEMP/paperback-src"
+          rm -rf "$SRC"
+          mkdir -p "$SRC"
+          unzip -q -o "$ZIP_PATH" -d "$SRC"
+          # the project root is the folder that holds scripts/fetch-submodules.sh (a top folder is fine)
+          FETCH="$(find "$SRC" -path '*/scripts/fetch-submodules.sh' -not -path '*__MACOSX*' -not -path '*/node_modules/*' | head -n 1)"
+          if [ -z "$FETCH" ]; then
+            echo "::error::'$ZIP_PATH' does not look like the Paperback zip (no scripts/fetch-submodules.sh)."
+            exit 1
+          fi
+          ROOT="$(dirname "$(dirname "$FETCH")")"
+          for f in package.json pnpm-lock.yaml pnpm-workspace.yaml submodules.txt apps/readest-app/package.json; do
+            if [ ! -f "$ROOT/$f" ]; then
+              echo "::error::'$f' is missing in '$ZIP_PATH'. Is this the part 1 zip (the app, not only the tests)?"
+              exit 1
+            fi
+          done
+          mv "$ROOT" build
+          echo "Unpacked $(find build -type f | wc -l) files from $ZIP_PATH into build/"
+          head -n 12 build/CHANGELOG.md || true
+
+      - name: download the code packages (foliate-js and the others)
+        working-directory: build
+        run: bash scripts/fetch-submodules.sh
+
+      - name: setup pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: build/package.json
+
+      - name: setup node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v6
+        with:
+          node-version: 24
+          cache: pnpm
+          cache-dependency-path: build/pnpm-lock.yaml
+
+      - name: setup Java
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - name: setup Android SDK
+        uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
+        with:
+          packages: 'platform-tools'
+
+      - name: install NDK
+        run: sdkmanager "ndk;28.2.13676358"
+
+      - name: install dependencies
+        working-directory: build
+        # not --frozen-lockfile: packages were removed by hand from package.json and the lockfile, and pnpm
+        # tidies the rest of the lockfile itself
+        run: pnpm install --no-frozen-lockfile --prefer-offline
+
+      - name: copy pdfjs-dist and simplecc-dist to public directory
+        working-directory: build
+        run: pnpm --filter @readest/readest-app setup-vendors
+
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@29eef336d9b2848a0b548edc03f92a220660cdb8 # stable
+        with:
+          targets: aarch64-linux-android
+
+      - uses: Swatinem/rust-cache@f0d9c3887740aee45f6153b24b3a6b815192ec16 # v2
+        with:
+          workspaces: build -> target
+          key: paperback-android-cargo
+
+      - name: unit tests (stats and shelves logic, only if the zip has the tests folder)
+        continue-on-error: true
+        working-directory: build
+        run: |
+          if [ ! -d apps/readest-app/src/__tests__ ]; then
+            echo "No tests folder in the zip: skipping the unit tests (not needed for the APK)."
+            exit 0
+          fi
+          pnpm --filter @readest/readest-app exec vitest run \
+            src/__tests__/statistics/backup.test.ts \
+            src/__tests__/statistics/navStyle.test.ts \
+            src/__tests__/statistics/library.test.ts \
+            src/__tests__/statistics/libraryViews.test.ts \
+            src/__tests__/statistics/notesViews.test.ts \
+            src/__tests__/statistics/shelves.test.ts \
+            src/__tests__/statistics/statsAggregate.test.ts \
+            src/__tests__/statistics/activityStats.test.ts \
+            src/__tests__/statistics/milestonesStats.test.ts
+
+      - name: build APK
+        working-directory: build/apps/readest-app
+        env:
+          NDK_HOME: ${{ env.ANDROID_HOME }}/ndk/28.2.13676358
+          KEY_B64: ${{ secrets.ANDROID_KEY_BASE64 }}
+          KEY_ALIAS_SECRET: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS_SECRET: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          # keep a copy of Paperback's Android customisations: `init` overwrites them
+          # (there is no git history in the unpacked zips, so this replaces `git checkout`)
+          rm -rf "$RUNNER_TEMP/android-custom"
+          cp -a src-tauri/gen/android "$RUNNER_TEMP/android-custom"
+          rm -rf src-tauri/gen/android
+          pnpm tauri android init
+          # put the customisations back over what `init` generated
+          cp -a "$RUNNER_TEMP/android-custom/." src-tauri/gen/android/
+          # separate package id so Paperback installs next to Readest
+          sed -i "s/applicationId = \"com.bilingify.readest\"/applicationId = \"${PAPERBACK_APP_ID}\"/" \
+            src-tauri/gen/android/app/build.gradle.kts
+          grep -n "applicationId" src-tauri/gen/android/app/build.gradle.kts
+          pnpm tauri icon ../../data/icons/paperback.png
+
+          # signing, first match wins:
+          #  1. your own key from the repository secrets (ANDROID_KEY_BASE64 / _ALIAS / _PASSWORD)
+          #  2. a throwaway key (that APK installs fine, but a later build can't update it in place)
+          if [ -n "${KEY_B64:-}" ]; then
+            echo "Signing with the key from the repository secrets"
+            base64 -d <<< "$KEY_B64" > "$RUNNER_TEMP/keystore.jks"
+            KEY_ALIAS="$KEY_ALIAS_SECRET"
+            KEY_PASS="$KEY_PASS_SECRET"
+          else
+            echo "::warning::No signing key in the repository secrets: using a throwaway key (an APK signed with it cannot update the installed app)."
+            KEY_ALIAS=paperback
+            KEY_PASS=paperback-temp-key
+            rm -f "$RUNNER_TEMP/keystore.jks"
+            keytool -genkeypair -keystore "$RUNNER_TEMP/keystore.jks" -alias "$KEY_ALIAS" \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$KEY_PASS" -keypass "$KEY_PASS" -dname "CN=Paperback"
+          fi
+          # the key's fingerprint: the same line in every build means the new APK can update the old one
+          keytool -list -v -keystore "$RUNNER_TEMP/keystore.jks" -storepass "$KEY_PASS" | grep -E "Alias name|SHA256" || true
+          {
+            echo "keyAlias=$KEY_ALIAS"
+            echo "password=$KEY_PASS"
+            echo "storeFile=$RUNNER_TEMP/keystore.jks"
+          } > src-tauri/gen/android/keystore.properties
+
+          # --apk: only the APK. Without it the build also made a Play Store bundle (.aab) that is never used,
+          # and that compiled the Rust code a third time (about 5 minutes).
+          pnpm tauri android build -t aarch64 --apk
+          cp src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk \
+            "$GITHUB_WORKSPACE/Paperback.apk"
+
+      - name: show which key signed the APK
+        continue-on-error: true
+        run: |
+          APKSIGNER="$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -n 1)"
+          "$APKSIGNER" verify --print-certs Paperback.apk | grep -E "Verifies|SHA-256" || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Paperback-apk
+          path: Paperback.apk
+
+      - name: publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create "paperback-zip-${{ github.run_number }}" Paperback.apk \
+            --title "Paperback build (zip) ${{ github.run_number }}" \
+            --notes "Built from $ZIP_PATH" --prerelease
