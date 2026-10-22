@@ -1,0 +1,141 @@
+name: Paperback (Kotlin) APK from one zip
+
+# Builds a signed Android APK of the Kotlin version of Paperback from ONE zip file.
+#
+#   1. Add file -> Upload files -> pick paperback-kt-N.zip (it holds the whole project). Commit.
+#      Leave the name box EMPTY to build the newest paperback-kt*.zip, or type a name.
+#   2. Actions -> "Paperback (Kotlin) APK from one zip" -> Run workflow.
+#   3. When it is green: Releases -> download Paperback-2.apk and install it.
+#
+# Put this file in .github/workflows/. It only looks at zips named paperback-kt*.zip, so it never
+# touches the zips of the old TypeScript app (that workflow takes "the newest *.zip": when you
+# build the old app, type its zip name instead of leaving the box empty).
+# Signing uses the same three secrets as before: ANDROID_KEY_BASE64, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD.
+# Package id is com.paperback.app, so it installs next to the old Paperback (com.paperback.reader).
+
+on:
+  workflow_dispatch:
+    inputs:
+      zip_path:
+        description: 'Name of the zip in the main folder. Leave EMPTY to use the newest paperback-kt*.zip'
+        required: false
+        default: ''
+
+permissions:
+  contents: write
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          filter: blob:none
+
+      - name: unpack the zip
+        env:
+          INPUT_ZIP: ${{ inputs.zip_path }}
+        run: |
+          set -euo pipefail
+          ZIP_PATH="$INPUT_ZIP"
+          if [ -z "$ZIP_PATH" ]; then
+            best=""; bestt=0
+            for f in paperback-kt*.zip; do
+              [ -f "$f" ] || continue
+              t="$(git log -1 --format=%ct -- "$f" 2>/dev/null || true)"; t="${t:-0}"
+              if [ "$t" -ge "$bestt" ]; then best="$f"; bestt="$t"; fi
+            done
+            ZIP_PATH="$best"
+            echo "No name typed: using the newest zip, '$ZIP_PATH'"
+          fi
+          if [ -z "$ZIP_PATH" ] || [ ! -f "$ZIP_PATH" ]; then
+            echo "::error::Could not find a paperback-kt*.zip in the repo. Upload it (Add file -> Upload files) and run again."
+            ls -la
+            exit 1
+          fi
+          echo "ZIP_PATH=$ZIP_PATH" >> "$GITHUB_ENV"
+          SRC="$RUNNER_TEMP/paperback-src"
+          rm -rf "$SRC"; mkdir -p "$SRC"
+          unzip -q -o "$ZIP_PATH" -d "$SRC"
+          SETTINGS="$(find "$SRC" -name settings.gradle.kts -not -path '*__MACOSX*' | head -n 1)"
+          if [ -z "$SETTINGS" ]; then
+            echo "::error::'$ZIP_PATH' has no settings.gradle.kts, so it is not the Kotlin Paperback project."
+            exit 1
+          fi
+          mv "$(dirname "$SETTINGS")" build
+          echo "Unpacked $(find build -type f | wc -l) files from $ZIP_PATH into build/"
+
+      - uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      - uses: android-actions/setup-android@be39fa834029ff78f1a44aa3bb0819b8fc2bd8fd # v4
+        with:
+          packages: 'platform-tools'
+
+      # Installs Gradle and caches its downloads between runs: this is what keeps repeat builds short.
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: 8.14.1
+
+      - name: signing key
+        working-directory: build
+        env:
+          KEY_B64: ${{ secrets.ANDROID_KEY_BASE64 }}
+          KEY_ALIAS_SECRET: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS_SECRET: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          if [ -n "${KEY_B64:-}" ]; then
+            echo "Signing with the key from the repository secrets"
+            base64 -d <<< "$KEY_B64" > "$RUNNER_TEMP/keystore.jks"
+            KEY_ALIAS="$KEY_ALIAS_SECRET"
+            KEY_PASS="$KEY_PASS_SECRET"
+          else
+            echo "::warning::No signing key in the repository secrets: using a throwaway key (that APK cannot update an installed one)."
+            KEY_ALIAS=paperback
+            KEY_PASS=paperback-temp-key
+            rm -f "$RUNNER_TEMP/keystore.jks"
+            keytool -genkeypair -keystore "$RUNNER_TEMP/keystore.jks" -alias "$KEY_ALIAS" \
+              -keyalg RSA -keysize 2048 -validity 10000 \
+              -storepass "$KEY_PASS" -keypass "$KEY_PASS" -dname "CN=Paperback"
+          fi
+          keytool -list -v -keystore "$RUNNER_TEMP/keystore.jks" -storepass "$KEY_PASS" | grep -E "Alias name|SHA256" || true
+          {
+            echo "keyAlias=$KEY_ALIAS"
+            echo "password=$KEY_PASS"
+            echo "storeFile=$RUNNER_TEMP/keystore.jks"
+          } > keystore.properties
+
+      - name: build APK
+        working-directory: build
+        run: gradle :app:assembleRelease --stacktrace
+
+      - name: collect the APK
+        run: |
+          APK="$(find build/app/build/outputs/apk/release -name '*.apk' | head -n 1)"
+          echo "Built: $APK"
+          cp "$APK" Paperback-2.apk
+
+      - name: show which key signed the APK
+        continue-on-error: true
+        run: |
+          APKSIGNER="$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -n 1)"
+          "$APKSIGNER" verify --print-certs Paperback-2.apk | grep -E "Verifies|SHA-256" || true
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Paperback-2-apk
+          path: Paperback-2.apk
+
+      - name: publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release create "paperback-kt-${{ github.run_number }}" Paperback-2.apk \
+            --title "Paperback 2 (Kotlin) build ${{ github.run_number }}" \
+            --notes "Built from $ZIP_PATH" --prerelease
