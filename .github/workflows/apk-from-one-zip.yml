@@ -20,7 +20,7 @@ on:
   workflow_dispatch:
     inputs:
       zip_path:
-        description: 'Name of the zip in the main folder. Leave EMPTY to use the newest zip (paperback-2.zip and so on)'
+        description: 'Name of the zip in the main folder. Leave EMPTY to use the newest zip (paperback.zip and so on)'
         required: false
         default: ''
 
